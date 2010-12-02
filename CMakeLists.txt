@@ -17,7 +17,6 @@ SET(HEADERS ${HEADERS}
 	clientproxy.h
 	clientproxy_p.h
 	proxybase.h
-	qxtavahipoll_p.h
 	qxtdiscoverableservice.h
 	qxtdiscoverableservice_p.h
 	qxtservicebrowser.h
@@ -76,12 +75,12 @@ SET(HEADERS ${HEADERS}
 	qxtmdns_bonjour.h
 )
 
-FIND_LIBRARY(BONJOUR_LIBRARY NAMES dnssd PATHS
+FIND_LIBRARY(BONJOUR_LIBRARY NAMES dnssd.lib PATHS
 	"C:/Program Files/Bonjour SDK/Lib/Win32/"
 	"C:/Bonjour SDK/Lib/Win32/"
 )
 
-FIND_PATH(BONJOUR_INCLUDE_DIR dnssd.h
+FIND_PATH(BONJOUR_INCLUDE_DIR dns_sd.h
 	"C:/Program Files/Bonjour SDK/Include/"
 	"C:/Bonjour SDK/Include/"
 )
@@ -94,7 +93,7 @@ ENDIF (BONJOUR_INCLUDE_DIR AND BONJOUR_LIBRARY)
 IF (BONJOUR_FOUND)
 	MESSAGE(STATUS "Found Bonjour: ${BONJOUR_LIBRARY}")
 ELSE (BONJOUR_FOUND)
-	MESSAGE(FATAL_ERROR "Could not find Bonjour")
+	MESSAGE(FATAL_ERROR "Could not find Bonjour (${BONJOUR_LIBRARY}, ${BONJOUR_INCLUDE_DIR}")
 ENDIF (BONJOUR_FOUND)
 
 SET(LIBRARIES ${LIBRARIES}
@@ -119,6 +118,7 @@ SET(HEADERS ${HEADERS}
 	serverprotocolinstancesocket.h
 	qxtmdns_avahi.h
 	qxtavahipoll.h
+	qxtavahipoll_p.h
 )
 
 SET(LIBRARIES ${LIBRARIES}
