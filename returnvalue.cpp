@@ -338,15 +338,15 @@ QDataStream& operator<< (QDataStream& s, const QtRpc::ReturnValue& p)
 
 QDataStream& operator>> (QDataStream& s, QtRpc::ReturnValue::Error& p)
 {
-    int pt;
-        s >> pt;
-        p = (QtRpc::ReturnValue::Error)pt;
+	int pt;
+	s >> pt;
+	p = (QtRpc::ReturnValue::Error)pt;
 	return s;
 }
 
 QDataStream& operator<< (QDataStream& s, const QtRpc::ReturnValue::Error p)
 {
-        s << (int)p;
+	s << (int)p;
 	return s;
 }
 
