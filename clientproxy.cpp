@@ -111,6 +111,8 @@ ReturnValue ServiceData::callFunction(Signature sig, Arguments args)
 
 ReturnValue ServiceData::callFunction(QObject* obj, Signature slot, Signature sig, Arguments args)
 {
+	if (!connection || !connection->bus)
+		return ReturnValue(1, "Cannot call functions while not connected");
 	return connection->bus->callFunction(obj, slot, Message(0, Message::Function, sig, args, id));
 }
 
@@ -175,11 +177,15 @@ void ConnectionData::unregisterServiceData(quint32 id)
 // outgoing functions...
 ReturnValue ConnectionData::callFunction(Signature sig, Arguments args)
 {
+	if (!bus)
+		return ReturnValue(1, "Cannot call functions while not connected");
 	return bus->callFunction(Message(0, Message::QtRpc, sig, args));
 }
 
 ReturnValue ConnectionData::callFunction(QObject* obj, Signature slot, Signature sig, Arguments args)
 {
+	if (!bus)
+		return ReturnValue(1, "Cannot call functions while not connected");
 	return bus->callFunction(obj, slot, Message(0, Message::QtRpc, sig, args));
 }
 
@@ -392,7 +398,14 @@ ReturnValue QtRpc::ClientProxy::connect(QUrl url, QObject *obj, const char *slot
 void QtRpc::ClientProxyPrivate::connectCompleted(uint id, ReturnValue ret)
 {
 	if (ret.isError())
+	{
 		connection->state = ClientProxy::Disconnected;
+	}
+	else if (!connection)
+	{
+		connection->state = ClientProxy::Disconnected;
+		ret = ReturnValue(1, "Connection unexpectedly dropped during connect.");
+	}
 	else
 	{
 		if (connection->token.clientContains("service"))
