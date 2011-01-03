@@ -109,7 +109,7 @@ bool ClientProtocolIODevicePrivate::checkProtocolFunction(Message msg)
 		}
 		return true;
 	}
-	else if(name == "setProtocolVersion")
+	else if (name == "setProtocolVersion")
 	{
 		if (msg.arguments().count() > 0)
 		{
@@ -158,7 +158,7 @@ bool ClientProtocolIODevicePrivate::checkProtocolFunction(Message msg)
 			case 0:// Connecting, we should never see this though...
 				break;
 			case 1:// Service
-				if(qxt_p().getServiceName().isEmpty())
+				if (qxt_p().getServiceName().isEmpty())
 				{
 					// no service to select, return from connect with true (services are optional now)
 					emit qxt_p().returnReceived(Message(qxt_p().connectId(), ReturnValue(true)));
@@ -208,14 +208,14 @@ void ClientProtocolIODevicePrivate::writeMessage(Message msg)
 	QByteArray array;
 	QDataStream stream(&array, QIODevice::WriteOnly);
 	msg.setVersion(qxt_p().version());
-	
+
 #ifdef DEBUG_MESSAGES
-	if(msg.type() == Message::Return)
+	if (msg.type() == Message::Return)
 		qDebug() << "S:" << msg.returnValue();
 	else
 		qDebug() << "S:" << msg.signature();
 #endif
-	
+
 	stream << msg.size() << msg;
 	device->write(array);
 	return;
@@ -259,6 +259,8 @@ void ClientProtocolIODevicePrivate::readyRead()
 	{
 		if (totalSize == 0)
 		{
+			if (device->bytesAvailable() < sizeof(totalSize))
+				break;
 			stream >> totalSize;
 			read = 0;
 			buffer.resize(0);

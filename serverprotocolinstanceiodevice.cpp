@@ -124,6 +124,8 @@ void ServerProtocolInstanceIODevicePrivate::readyRead()
 	{
 		if (totalSize == 0)
 		{
+			if (device->bytesAvailable() < sizeof(totalSize))
+				break;
 			stream >> totalSize;
 			read = 0;
 			buffer.resize(0);
