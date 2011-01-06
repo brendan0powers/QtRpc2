@@ -351,7 +351,6 @@ ReturnValue QtRpc::ClientProxy::connect(QUrl url, QObject *obj, const char *slot
 			qxt_d().connection->state = Disconnected;
 			return ret;
 		}
-		qDebug() << "We have connected:" << ret;
 		qxt_d().connection->state = Connected;
 
 		// at this point the version negotiations are completed
