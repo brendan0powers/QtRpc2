@@ -64,6 +64,7 @@
 	} \
 	name::name(const ReturnValue& ret) \
 	{ \
+		QXT_INIT_PRIVATE(name); \
 		QtRpc::ClientProxy::operator=(ret); \
 	}
 
@@ -159,7 +160,7 @@ else
 class QTRPC2_EXPORT ClientProxy : public ProxyBase
 {
 	QXT_DECLARE_PRIVATE(ClientProxy);
-        Q_OBJECT;
+	Q_OBJECT;
 	friend class ServiceData;
 public:
 	enum State
