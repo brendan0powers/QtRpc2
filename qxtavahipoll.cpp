@@ -192,7 +192,7 @@ void AvahiTimeout::updateTimeout(const struct timeval *tv)
 		_timer.stop();
 		return;
 	}
-	int msecs = (avahi_age(tv)) / 1000;
+	qint64 msecs = (avahi_age(tv)) / 1000;
 	if (msecs > 0)
 		msecs = 0;
 	else
