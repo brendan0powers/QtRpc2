@@ -376,7 +376,6 @@ ReturnValue ProxyBase::callMetacall(Signature sig, Arguments args)
 QList<Signature> ProxyBase::listFunctions()
 {
 	QMutexLocker locker(&qxt_d().mutex);
-	qDebug() << qxt_d().functions;
 	return qxt_d().functions.values();
 }
 

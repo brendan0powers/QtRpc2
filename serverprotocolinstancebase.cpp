@@ -49,7 +49,7 @@ namespace QtRpc
  */
 ServerProtocolInstanceBase::ServerProtocolInstanceBase(Server* serv, QObject *parent) : QObject(parent)
 {
-	qDebug() << "Starting an instance";
+	qDebug() << "Incoming connection.";
 	QXT_INIT_PRIVATE(ServerProtocolInstanceBase);
 	qxt_d().serv = serv;
 	qxt_d().servicename = "";

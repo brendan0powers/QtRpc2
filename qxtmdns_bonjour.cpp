@@ -70,7 +70,6 @@ void QxtMDNS::DNSServiceQueryRecordCallback(DNSServiceRef DNSServiceRef, DNSServ
 	QHostInfo info(md->info.lookupId());
 	uint32_t ip = qFromBigEndian(*static_cast<const uint32_t*>(rdata));
 	info.setAddresses(QList<QHostAddress>() << QHostAddress(ip));
-        qDebug() << QHostAddress(ip);
         QMetaObject::invokeMethod(md->receiver, qPrintable(md->member), Q_ARG(QHostInfo, info));
 }
 

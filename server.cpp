@@ -190,7 +190,7 @@ QList<Signature> Server::listFunctions(const QString &service)
 	QMutexLocker locker(&qxt_d().servicemutex);
 	if (!_serviceFactories.contains(service))
 	{
-		qDebug() << "Failed to find service:" << service;
+		qWarning() << "Failed to find service:" << service << _serviceFactories.keys();
 		return QList<Signature>();
 	}
 	return _serviceFactories[service]->instance().listFunctions();
