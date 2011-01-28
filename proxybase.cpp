@@ -346,10 +346,14 @@ ReturnValue ProxyBase::callMetacall(Signature sig, Arguments args)
 
 	for (int i = 0; i < sig.numArgs(); i++)
 	{
-		if (args[i].type() == QVariant::UserType)
+		if (sig.arg(i) != "QVariant" && args[i].type() == QVariant::UserType)
+		{
 			param[i+1] = args[i].data();
+		}
 		else
+		{
 			param[i+1] = static_cast<void*>(&args[i]);
+		}
 	}
 
 	// Check the make sure the signature is a valid string...
