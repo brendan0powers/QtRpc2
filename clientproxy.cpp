@@ -396,6 +396,7 @@ ReturnValue QtRpc::ClientProxy::connect(QUrl url, QObject *obj, const char *slot
 
 void QtRpc::ClientProxyPrivate::connectCompleted(uint id, ReturnValue ret)
 {
+	qDebug() << "I finsihed connecting";
 	if (ret.isError())
 	{
 		connection->state = ClientProxy::Disconnected;
@@ -409,10 +410,12 @@ void QtRpc::ClientProxyPrivate::connectCompleted(uint id, ReturnValue ret)
 	{
 		if (connection->token.clientContains("service"))
 		{
+			qDebug() << "connecting with version > 0, aka setting auth token";
 			ret = connection->callFunction("setDefaultToken(AuthToken)", Arguments() << QVariant::fromValue(connection->token));
 			if (!ret.isError())
 			{
 				QString service = connection->token.clientData()["service"].toString();
+				qDebug() << "Apparently it's assumed that we have a service? weird." << service;
 				connection->token.clientRemove("service");
 				ret = qxt_p().selectService(service);
 			}
@@ -430,6 +433,7 @@ void QtRpc::ClientProxyPrivate::connectCompleted(uint id, ReturnValue ret)
 	}
 	else
 	{
+		qDebug() << "Attempting this shit" << obj.object << obj.slot;
 		QObject::connect(&(qxt_p()), SIGNAL(asyncronousSignaler(uint, ReturnValue)), obj.object, qPrintable(obj.slot), Qt::DirectConnection);
 		emit qxt_p().asyncronousSignaler(id, ret);
 		QObject::disconnect(&(qxt_p()), SIGNAL(asyncronousSignaler(uint, ReturnValue)), obj.object, qPrintable(obj.slot));
@@ -481,6 +485,7 @@ ReturnValue ClientProxy::getService(QString service, AuthToken token)
 			if (!qxt_d().service.isNull())
 				qxt_d().service->addProxy(this);
 		}
+		qxt_d().connection->token.clientData()["auth_return"] = ret;
 		return ret;
 	}
 	else
@@ -495,6 +500,7 @@ ReturnValue ClientProxy::getService(QString service, AuthToken token)
 		ReturnValue ret2 = qxt_d().parseReturn(data->callFunction(Signature("auth(QtRpc::AuthToken)"), Arguments() << QVariant::fromValue(token)));
 		if (ret2.isError())
 			return ret2;
+		qxt_d().connection->token.clientData()["auth_return"] = ret2;
 		return ret;
 	}
 }
@@ -760,4 +766,20 @@ ClientProxy& ClientProxy::operator=(const ClientProxy & other)
 	qxt_d().service->addProxy(this);
 	return *this;
 }
+
+AuthToken ClientProxy::authToken() const
+{
+	if (!qxt_d().connection)
+		return AuthToken();
+	return qxt_d().connection->token;
+}
+
+AuthToken &ClientProxy::authToken()
+{
+	static AuthToken brokenAuthToken;
+	if (!qxt_d().connection)
+		return brokenAuthToken;
+	return qxt_d().connection->token;
+}
+
 

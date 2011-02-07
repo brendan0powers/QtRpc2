@@ -191,6 +191,8 @@ public:
 	ReturnValue listFunctions(const QString &service);
 	ReturnValue listCallbacks(const QString &service);
 	ReturnValue listEvents(const QString &service);
+	QtRpc::AuthToken authToken() const;
+	QtRpc::AuthToken &authToken();
 
 	ClientProxy& operator=(const ReturnValue &service);
 	ClientProxy& operator=(const ClientProxy &service);
@@ -227,7 +229,6 @@ signals:
 	* This is emited when the protocol becomes disconnected.
 	*/
 	void disconnected();
-
 
 signals:
 	void asyncronousSignaler(uint, ReturnValue);
