@@ -156,7 +156,7 @@ void ServerProtocolInstanceIODevicePrivate::readyRead()
 #endif
 			if (!parseMessage(msg))
 			{
-				qDebug() << "Received a bad message, attempting to read as version 0";
+				qWarning() << "Received a bad message, attempting to read as version 0";
 				msg = Message();
 				{
 					QDataStream stream(buffer);
