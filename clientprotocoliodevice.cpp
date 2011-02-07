@@ -201,7 +201,7 @@ void ClientProtocolIODevicePrivate::writeMessage(Message msg)
 	Q_ASSERT(thread() == QThread::currentThread());
 	if (!qxt_p().isConnected())
 	{
-		qDebug() << "Sending message while not connected";
+		qCritical() << "Attempting to send a message while not connected";
 		emit qxt_p().returnReceived(Message(msg.id(), ReturnValue(1, "Not Connected")));
 		return;
 	}

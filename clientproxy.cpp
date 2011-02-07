@@ -357,7 +357,7 @@ ReturnValue QtRpc::ClientProxy::connect(QUrl url, QObject *obj, const char *slot
 		ret = qxt_d().connection->callFunction(Signature("version()"), Arguments());
 		if (ret.isError())
 		{
-			qDebug() << "Failed to get version:" << ret;
+			qCritical() << "Failed to get version:" << ret;
 			return ret;
 		}
 		if (ret.toUInt() > 0)
@@ -365,7 +365,7 @@ ReturnValue QtRpc::ClientProxy::connect(QUrl url, QObject *obj, const char *slot
 			ret = qxt_d().connection->callFunction("setDefaultToken(AuthToken)", Arguments() << QVariant::fromValue(qxt_d().connection->token));
 			if (ret.isError())
 			{
-				qDebug() << "Failed to set default AuthToken:" << ret;
+				qCritical() << "Failed to set default AuthToken:" << ret;
 				return ret;
 			}
 		}
@@ -396,7 +396,6 @@ ReturnValue QtRpc::ClientProxy::connect(QUrl url, QObject *obj, const char *slot
 
 void QtRpc::ClientProxyPrivate::connectCompleted(uint id, ReturnValue ret)
 {
-	qDebug() << "I finsihed connecting";
 	if (ret.isError())
 	{
 		connection->state = ClientProxy::Disconnected;
@@ -410,12 +409,10 @@ void QtRpc::ClientProxyPrivate::connectCompleted(uint id, ReturnValue ret)
 	{
 		if (connection->token.clientContains("service"))
 		{
-			qDebug() << "connecting with version > 0, aka setting auth token";
 			ret = connection->callFunction("setDefaultToken(AuthToken)", Arguments() << QVariant::fromValue(connection->token));
 			if (!ret.isError())
 			{
 				QString service = connection->token.clientData()["service"].toString();
-				qDebug() << "Apparently it's assumed that we have a service? weird." << service;
 				connection->token.clientRemove("service");
 				ret = qxt_p().selectService(service);
 			}
@@ -433,7 +430,6 @@ void QtRpc::ClientProxyPrivate::connectCompleted(uint id, ReturnValue ret)
 	}
 	else
 	{
-		qDebug() << "Attempting this shit" << obj.object << obj.slot;
 		QObject::connect(&(qxt_p()), SIGNAL(asyncronousSignaler(uint, ReturnValue)), obj.object, qPrintable(obj.slot), Qt::DirectConnection);
 		emit qxt_p().asyncronousSignaler(id, ret);
 		QObject::disconnect(&(qxt_p()), SIGNAL(asyncronousSignaler(uint, ReturnValue)), obj.object, qPrintable(obj.slot));
@@ -468,7 +464,7 @@ ReturnValue ClientProxy::getService(QString service, AuthToken token)
 	ReturnValue ret = qxt_d().connection->callFunction(Signature("version()"), Arguments());
 	if (ret.isError())
 	{
-		qDebug() << "Failed to get version:" << ret;
+		qCritical() << "Failed to get version:" << ret;
 		return ret;
 	}
 	if (ret.toUInt() == 0)
