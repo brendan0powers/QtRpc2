@@ -182,7 +182,7 @@ QVariant& AuthToken::operator[](const QString &str)
 	return qxt_d().data->serverData[str];
 }
 
-QDebug QtRpc::operator<<(QDebug dbg, const AuthToken& auth)
+QDebug operator<<(QDebug dbg, const AuthToken& auth)
 {
 	QReadLocker locker(auth.qxt_d().mutex());
 	if (auth.qxt_d().data->defaultToken)

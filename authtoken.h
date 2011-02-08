@@ -44,16 +44,17 @@ class QString;
 QTRPC2_EXPORT QDataStream& operator>> (QDataStream& s, QtRpc::AuthToken& auth);
 QTRPC2_EXPORT QDataStream& operator<< (QDataStream& s, const QtRpc::AuthToken& auth);
 
+QTRPC2_EXPORT QDebug operator<<(QDebug dbg, const QtRpc::AuthToken& auth); //for debugging
+
 namespace QtRpc
 {
-QTRPC2_EXPORT QDebug operator<<(QDebug dbg, const QtRpc::AuthToken& auth); //for debugging
 /**
 	@author Chris Vickery <chris@resara.com>
 */
 class QTRPC2_EXPORT AuthToken
 {
 	QXT_DECLARE_PRIVATE(AuthToken);
-	friend QDebug operator<<(QDebug dbg, const QtRpc::AuthToken& ret);
+	friend QDebug(::operator<<)(QDebug dbg, const QtRpc::AuthToken& ret);
 	friend QDataStream& ::operator>> (QDataStream& s, QtRpc::AuthToken& auth);
 	friend QDataStream& ::operator<< (QDataStream& s, const QtRpc::AuthToken& auth);
 public:

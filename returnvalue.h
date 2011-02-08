@@ -49,8 +49,6 @@ QTRPC2_EXPORT QDebug operator<<(QDebug dbg, const QtRpc::ReturnValue& ret);
 namespace QtRpc
 {
 
-QDebug& operatorHelper(QDebug& dbg, const QtRpc::ReturnValue& ret);
-
 void registerMetaTypes();
 
 /**
@@ -84,7 +82,7 @@ class QTRPC2_EXPORT ReturnValue : public QVariant
 	friend QDataStream& ::operator>> (QDataStream& s, QtRpc::ReturnValue& p);
 	friend QDataStream& ::operator<< (QDataStream& s, const QtRpc::ReturnValue& p);
 
-	friend QDebug& operatorHelper(QDebug& dbg, const QtRpc::ReturnValue& ret);
+	friend QDebug (::operator<<)(QDebug dbg, const QtRpc::ReturnValue& ret);
 	friend class ServerProtocolInstanceBase;
 	friend class ClientProxyPrivate;
 public:
