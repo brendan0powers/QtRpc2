@@ -87,8 +87,8 @@ public:
 	QtRpc::Signature& operator=(const Signature& other);
 
 private:
-	friend QDataStream& ::operator>> (QDataStream& s, Signature& p);
-	friend QDataStream& ::operator<< (QDataStream& s, const Signature& p);
+	friend QTRPC2_EXPORT QDataStream& ::operator>> (QDataStream& s, Signature& p);
+	friend QTRPC2_EXPORT QDataStream& ::operator<< (QDataStream& s, const Signature& p);
 };
 
 typedef QList<QVariant> Arguments;

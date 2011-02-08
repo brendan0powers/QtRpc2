@@ -79,10 +79,10 @@ else
 class QTRPC2_EXPORT ReturnValue : public QVariant
 {
 	QXT_DECLARE_PRIVATE(ReturnValue);
-	friend QDataStream& ::operator>> (QDataStream& s, QtRpc::ReturnValue& p);
-	friend QDataStream& ::operator<< (QDataStream& s, const QtRpc::ReturnValue& p);
+	friend QTRPC2_EXPORT QDataStream& ::operator>> (QDataStream& s, QtRpc::ReturnValue& p);
+	friend QTRPC2_EXPORT QDataStream& ::operator<< (QDataStream& s, const QtRpc::ReturnValue& p);
 
-	friend QDebug (::operator<<)(QDebug dbg, const QtRpc::ReturnValue& ret);
+	friend QTRPC2_EXPORT QDebug (::operator<<)(QDebug dbg, const QtRpc::ReturnValue& ret);
 	friend class ServerProtocolInstanceBase;
 	friend class ClientProxyPrivate;
 public:
