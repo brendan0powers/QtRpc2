@@ -41,22 +41,21 @@ class AuthToken;
 class QDebug;
 class QString;
 
-QTRPC2_EXPORT QDebug& operator<<(QDebug& dbg, const QtRpc::AuthToken& auth); //for debugging
-
 QTRPC2_EXPORT QDataStream& operator>> (QDataStream& s, QtRpc::AuthToken& auth);
 QTRPC2_EXPORT QDataStream& operator<< (QDataStream& s, const QtRpc::AuthToken& auth);
 
 namespace QtRpc
 {
+QTRPC2_EXPORT QDebug operator<<(QDebug dbg, const QtRpc::AuthToken& auth); //for debugging
 /**
 	@author Chris Vickery <chris@resara.com>
 */
 class QTRPC2_EXPORT AuthToken
 {
 	QXT_DECLARE_PRIVATE(AuthToken);
-        friend QTRPC2_EXPORT QDebug& ::operator<<(QDebug& dbg, const QtRpc::AuthToken& ret);
-        friend QTRPC2_EXPORT QDataStream& ::operator>> (QDataStream& s, QtRpc::AuthToken& auth);
-        friend QTRPC2_EXPORT QDataStream& ::operator<< (QDataStream& s, const QtRpc::AuthToken& auth);
+	friend QDebug operator<<(QDebug dbg, const QtRpc::AuthToken& ret);
+	friend QDataStream& ::operator>> (QDataStream& s, QtRpc::AuthToken& auth);
+	friend QDataStream& ::operator<< (QDataStream& s, const QtRpc::AuthToken& auth);
 public:
 	static const AuthToken defaultToken();
 	bool isDefault() const;

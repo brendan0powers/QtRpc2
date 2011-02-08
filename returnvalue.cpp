@@ -232,13 +232,7 @@ DEFAULT_CONSTRUCTOR(const QLocale &)
 DEFAULT_CONSTRUCTOR(const QRegExp &)
 DEFAULT_CONSTRUCTOR(Qt::GlobalColor)
 
-}
-
-#ifndef Q_OS_WIN32
-QDebug& operator<<(QDebug dbg, const QtRpc::ReturnValue& ret)
-#else
-QDebug& operator<<(QDebug& dbg, const QtRpc::ReturnValue& ret)
-#endif
+QDebug& operatorHelper(QDebug& dbg, const ReturnValue& ret)
 {
 	dbg.nospace() << "ReturnValue(";
 	switch (ret.qxt_d().data->type)
@@ -258,11 +252,15 @@ QDebug& operator<<(QDebug& dbg, const QtRpc::ReturnValue& ret)
 	dbg << ')';
 	return dbg.space();
 }
-#ifndef Q_OS_WIN32
-QDebug& operator<<(QDebug dbg, QtRpc::ReturnValue::Error err)
-#else
-QDebug& operator<<(QDebug& dbg, QtRpc::ReturnValue::Error err)
-#endif
+
+}
+
+QDebug operator<<(QDebug dbg, const ReturnValue& ret)
+{
+	return QtRpc::operatorHelper(dbg, ret);
+}
+
+QDebug operator<<(QDebug dbg, QtRpc::ReturnValue::Error err)
 {
 	switch (err)
 	{

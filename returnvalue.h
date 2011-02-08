@@ -32,6 +32,7 @@
 #include <QxtPimpl>
 #include <AutomaticMetatypeRegistry>
 #include <QtRpcGlobal>
+#include <QDebug>
 
 namespace QtRpc
 {
@@ -39,19 +40,16 @@ class ServiceProxy;
 class ReturnValue;
 class ReturnValuePrivate;
 }
-class QDebug;
 
 QTRPC2_EXPORT QDataStream& operator>> (QDataStream& s, QtRpc::ReturnValue& p);
 QTRPC2_EXPORT QDataStream& operator<< (QDataStream& s, const QtRpc::ReturnValue& p);
 
-#ifndef Q_OS_WIN32
-QDebug& operator<<(QDebug dbg, const QtRpc::ReturnValue& ret);
-#else
-QTRPC2_EXPORT QDebug& operator<<(QDebug& dbg, const QtRpc::ReturnValue& ret);
-#endif
+QTRPC2_EXPORT QDebug operator<<(QDebug dbg, const QtRpc::ReturnValue& ret);
 
 namespace QtRpc
 {
+
+QDebug& operatorHelper(QDebug& dbg, const QtRpc::ReturnValue& ret);
 
 void registerMetaTypes();
 
@@ -86,11 +84,7 @@ class QTRPC2_EXPORT ReturnValue : public QVariant
 	friend QDataStream& ::operator>> (QDataStream& s, QtRpc::ReturnValue& p);
 	friend QDataStream& ::operator<< (QDataStream& s, const QtRpc::ReturnValue& p);
 
-#ifndef Q_OS_WIN32
-        friend QDebug& ::operator<<(QDebug dbg, const QtRpc::ReturnValue& ret);
-#else
-        friend QDebug& ::operator<<(QDebug& dbg, const QtRpc::ReturnValue& ret);
-#endif
+	friend QDebug& operatorHelper(QDebug& dbg, const QtRpc::ReturnValue& ret);
 	friend class ServerProtocolInstanceBase;
 	friend class ClientProxyPrivate;
 public:
@@ -170,11 +164,7 @@ using QtRpc::ReturnValue;
 Q_DECLARE_METATYPE(QtRpc::ReturnValue);
 Q_DECLARE_TYPEINFO(QtRpc::ReturnValue, Q_MOVABLE_TYPE);
 
-#ifndef Q_OS_WIN32
-QDebug& operator<<(QDebug dbg, QtRpc::ReturnValue::Error ret);
-#else
-QTRPC2_EXPORT QDebug& operator<<(QDebug& dbg, QtRpc::ReturnValue::Error ret);
-#endif
+QTRPC2_EXPORT QDebug operator<<(QDebug dbg, QtRpc::ReturnValue::Error ret);
 
 QTRPC2_EXPORT QDataStream& operator>> (QDataStream& s, QtRpc::ReturnValue::Error& p);
 QTRPC2_EXPORT QDataStream& operator<< (QDataStream& s, const QtRpc::ReturnValue::Error p);
