@@ -281,7 +281,7 @@ QDebug operator<<(QDebug dbg, QtRpc::ReturnValue::Error err)
 			dbg << "0mg we ttly gotz h4xxord!";
 			break;
 		default:
-			dbg << "Error code" << static_cast<quint32>(err);
+			dbg << "Error code " << static_cast<qint32>(err);
 			break;
 	}
 	return dbg;
