@@ -180,11 +180,17 @@ public:
 	virtual ReturnValue connect(QUrl url, QObject *obj, const char *slot, const QtRpc::AuthToken &auth);
 	ReturnValue connect(QObject *obj, const char *slot, QString url);
 	void disconnect();
+	///@todo: Next time we break ABI, fix these function signatures too plox
 	ReturnValue selectService(QString service);
+	ReturnValue selectService(QObject *obj, const char *slot, const QString &service);
 	ReturnValue selectService(QString service, AuthToken token);
+	ReturnValue selectService(QObject *obj, const char *slot, const QString &service, const AuthToken &token);
 	ReturnValue getService(QString service);
+	ReturnValue getService(QObject *obj, const char *slot, const QString &service);
 	ReturnValue getService(QString service, AuthToken token);
+	ReturnValue getService(QObject *obj, const char *slot, const QString &service, const AuthToken &token);
 	ReturnValue deselectService();
+	ReturnValue deselectService(QObject *obj, const char *slot);
 	void init();
 	State state();
 	ReturnValue listServices();

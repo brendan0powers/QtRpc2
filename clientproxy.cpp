@@ -382,12 +382,13 @@ ReturnValue QtRpc::ClientProxy::connect(QUrl url, QObject *obj, const char *slot
 	}
 	else
 	{
+		qxt_d().connection->token.clientData()["setDefaultToken"] = false;
 		ReturnValue ret = qxt_d().connection->callFunction(&qxt_d(), Signature("connectCompleted(uint, ReturnValue)"), sig, args);
 		if (ret.isError())
 			qxt_d().connection->state = Disconnected; //failed to make an async call
 		else
 		{
-			ClientProxyPrivate::ObjectSlot objectslot = {slot, obj};
+			ClientProxyPrivate::ObjectSlot objectslot = {slot, obj, ret.toUInt()};
 			qxt_d().connectObjects[ret.toUInt()] = objectslot;
 		}
 		return(ret);
@@ -398,40 +399,80 @@ void QtRpc::ClientProxyPrivate::connectCompleted(uint id, ReturnValue ret)
 {
 	if (ret.isError())
 	{
+		connection->token.clientData().remove("setDefaultToken");
+		connection->token.clientData().remove("service");
 		connection->state = ClientProxy::Disconnected;
+		ObjectSlot obj = connectObjects.take(id);
+		sendReturnValue(obj, ret);
+		return;
 	}
-	else if (!connection)
+	if (!connection)
 	{
+		connection->token.clientData().remove("setDefaultToken");
+		connection->token.clientData().remove("service");
 		connection->state = ClientProxy::Disconnected;
 		ret = ReturnValue(1, "Connection unexpectedly dropped during connect.");
+		ObjectSlot obj = connectObjects.take(id);
+		sendReturnValue(obj, ret);
+		return;
 	}
-	else
+	if (connection->token.clientContains("setDefaultToken"))
 	{
-		if (connection->token.clientContains("service"))
+		connection->token.clientData().remove("setDefaultToken");
+		ret = connection->callFunction(
+		          this,
+		          Signature("connectCompleted(uint, ReturnValue)"),
+		          Signature("setDefaultToken(AuthToken)"),
+		          Arguments() << QVariant::fromValue(connection->token));
+		if (ret.isError())
 		{
-			ret = connection->callFunction("setDefaultToken(AuthToken)", Arguments() << QVariant::fromValue(connection->token));
-			if (!ret.isError())
-			{
-				QString service = connection->token.clientData()["service"].toString();
-				connection->token.clientRemove("service");
-				ret = qxt_p().selectService(service);
-			}
-			connection->token.clientRemove("service");
+			connection->token.clientData().remove("setDefaultToken");
+			connection->token.clientData().remove("service");
+			connection->state = ClientProxy::Disconnected;
+			ObjectSlot obj = connectObjects.take(id);
+			sendReturnValue(obj, ret);
 		}
-		connection->state = ClientProxy::Connected;
+		else
+			connectObjects.insert(ret.toUInt(), connectObjects.take(id));
+		return;
 	}
+	if (connection->token.clientContains("service"))
+	{
+		QString service = connection->token.clientData().take("service").toString();
+		ret = qxt_p().selectService(
+		          this,
+		          SLOT(connectCompleted(uint, ReturnValue)),
+		          service);
+		if (ret.isError())
+		{
+			connection->token.clientData().remove("setDefaultToken");
+			connection->token.clientData().remove("service");
+			connection->state = ClientProxy::Disconnected;
+			ObjectSlot obj = connectObjects.take(id);
+			sendReturnValue(obj, ret);
+		}
+		else
+			connectObjects.insert(ret.toUInt(), connectObjects.take(id));
+		return;
+	}
+	connection->state = ClientProxy::Connected;
 	ObjectSlot obj = connectObjects.take(id);
+	sendReturnValue(obj, ret);
+}
+
+void QtRpc::ClientProxyPrivate::sendReturnValue(const ObjectSlot &obj, const ReturnValue &ret)
+{
 	signalerMutex.lock();
 	if (obj.slot.contains("QtRpc::ReturnValue"))
 	{
-		QObject::connect(&(qxt_p()), SIGNAL(asyncronousSignalerNamespace(uint, QtRpc::ReturnValue)), obj.object, qPrintable(obj.slot), Qt::DirectConnection);
-		emit qxt_p().asyncronousSignalerNamespace(id, ret);
+		QObject::connect(&(qxt_p()), SIGNAL(asyncronousSignalerNamespace(uint, QtRpc::ReturnValue)), obj.object, qPrintable(obj.slot), Qt::QueuedConnection);
+		emit qxt_p().asyncronousSignalerNamespace(obj.id, ret);
 		QObject::disconnect(&(qxt_p()), SIGNAL(asyncronousSignalerNamespace(uint, QtRpc::ReturnValue)), obj.object, qPrintable(obj.slot));
 	}
 	else
 	{
-		QObject::connect(&(qxt_p()), SIGNAL(asyncronousSignaler(uint, ReturnValue)), obj.object, qPrintable(obj.slot), Qt::DirectConnection);
-		emit qxt_p().asyncronousSignaler(id, ret);
+		QObject::connect(&(qxt_p()), SIGNAL(asyncronousSignaler(uint, ReturnValue)), obj.object, qPrintable(obj.slot), Qt::QueuedConnection);
+		emit qxt_p().asyncronousSignaler(obj.id, ret);
 		QObject::disconnect(&(qxt_p()), SIGNAL(asyncronousSignaler(uint, ReturnValue)), obj.object, qPrintable(obj.slot));
 	}
 	signalerMutex.unlock();
@@ -443,6 +484,11 @@ ReturnValue ClientProxy::selectService(QString service)
 	return selectService(service, AuthToken::defaultToken());
 }
 
+ReturnValue ClientProxy::selectService(QObject *obj, const char *slot, const QString &service)
+{
+	return selectService(obj, slot, service, AuthToken::defaultToken());
+}
+
 // selects a service, assigns it to this client, and then returns the service
 ReturnValue ClientProxy::selectService(QString service, AuthToken token)
 {
@@ -452,15 +498,215 @@ ReturnValue ClientProxy::selectService(QString service, AuthToken token)
 	return ret;
 }
 
+ReturnValue ClientProxy::selectService(QObject *o, const char *slot, const QString &service, const AuthToken &token)
+{
+	ReturnValue ret = getService(
+	                      &qxt_d(),
+	                      SLOT(selectServiceCompleted(uint, ReturnValue)),
+	                      service,
+	                      token);
+	if (ret.isError())
+		return ret;
+	ClientProxyPrivate::ObjectSlot obj = {slot, o, ret.toUInt()};
+	qxt_d().selectServiceObjects.insert(ret.toUInt(), obj);
+	return ret;
+}
+
+void ClientProxyPrivate::selectServiceCompleted(uint id, ReturnValue ret)
+{
+	if (!ret.isError())
+		qxt_p() = (ret);
+	ObjectSlot obj = selectServiceObjects.take(id);
+	sendReturnValue(obj, ret);
+}
+
 // overloaded
 ReturnValue ClientProxy::getService(QString service)
 {
 	return getService(service, AuthToken::defaultToken());
 }
+ReturnValue ClientProxy::getService(QObject *obj, const char *slot, const QString &service)
+{
+	return getService(obj, slot, service, AuthToken::defaultToken());
+}
 
 // selects a service and returns it
+ReturnValue ClientProxy::getService(QObject *o, const char *slot, const QString &service, const AuthToken &token)
+{
+	if (!qxt_d().connection)
+		return ReturnValue(1, "Not connected");
+	QVariantMap serviceStatus;
+	serviceStatus["step"] = 0;
+	serviceStatus["token"] = QVariant::fromValue(token);
+	serviceStatus["service"] = service;
+	ReturnValue ret = qxt_d().connection->callFunction(
+	                      &qxt_d(),
+	                      Signature("getServiceCompleted(uint, ReturnValue)"),
+	                      Signature("version()"),
+	                      Arguments());
+	if (!ret.isError())
+	{
+		qxt_d().getServiceStatus.insert(ret.toUInt(), serviceStatus);
+		ClientProxyPrivate::ObjectSlot obj = {slot, o, ret.toUInt()};
+		qxt_d().getServiceObjects.insert(ret.toUInt(), obj);
+	}
+	return ret;
+}
+
+void ClientProxyPrivate::getServiceCompleted(uint id, ReturnValue ret)
+{
+	if (ret.isError())
+	{
+		ObjectSlot obj = getServiceObjects.take(id);
+		getServiceStatus.remove(obj.id);
+		sendReturnValue(obj, ret);
+		return;
+	}
+	if (!connection)
+	{
+		connection->state = ClientProxy::Disconnected;
+		ret = ReturnValue(1, "Connection unexpectedly dropped during connect.");
+		ObjectSlot obj = getServiceObjects.take(id);
+		getServiceStatus.remove(obj.id);
+		sendReturnValue(obj, ret);
+		return;
+	}
+	uint functionId = getServiceObjects.value(id).id;
+	QVariantMap serviceStatus = getServiceStatus.value(functionId);
+	QString service = serviceStatus["service"].toString();
+	AuthToken token = serviceStatus["token"].value<AuthToken>();
+	switch (serviceStatus.value("step").toUInt())
+	{
+		case 0:
+		{
+			ret = connection->callFunction(
+			          this,
+			          Signature("getServiceCompleted(uint, ReturnValue)"),
+			          Signature("version()"),
+			          Arguments());
+			break;
+		}
+		case 1:
+		{
+			// return from version
+			serviceStatus["version"] = ret.toInt();
+			if (serviceStatus["version"] == 0)
+			{
+				if (token.isDefault())
+					token = connection->token;
+				// old style service selecting
+				ret = connection->callFunction(
+				          this,
+				          Signature("getServiceCompleted(uint, ReturnValue)"),
+				          Signature("selectService(QString, QString, QString)"),
+				          Arguments() << service << token.clientData()["username"] << token.clientData()["password"]);
+			}
+			else
+			{
+				// select service the new way
+				ret = connection->callFunction(
+				          this,
+				          Signature("getServiceCompleted(uint, ReturnValue)"),
+				          Signature("selectService(QString)"),
+				          Arguments() << service);
+			}
+			break;
+		}
+		case 2:
+		{
+			// return from selectService
+			if (serviceStatus["version"] == 0)
+			{
+				// old style service selecting
+				ret = parseReturn(ret);
+				if (!ret.isError())
+				{
+					QSharedPointer<ServiceData> data(new ServiceData(0, connection));
+					connection->serviceDataObjects.insert(0, data);
+					if (!this->service.isNull())
+						this->service->removeProxy(&qxt_p());
+					this->service = data;
+					if (!this->service.isNull())
+						this->service->addProxy(&qxt_p());
+				}
+				if (token.isDefault())
+					token = connection->token;
+				token.clientData()["auth_return"] = ret;
+				ObjectSlot obj = getServiceObjects.take(id);
+				getServiceStatus.remove(obj.id);
+				sendReturnValue(obj, ret);
+			}
+			else
+			{
+				// select service the new way
+				ret = parseReturn(ret);
+				if (!ret.isService())
+				{
+					ObjectSlot obj = getServiceObjects.take(id);
+					getServiceStatus.remove(obj.id);
+					sendReturnValue(obj, ReturnValue(1, "Failed to get service object from server"));
+				}
+				QSharedPointer<ServiceData> data = getServiceData(ret);
+				if (data.isNull())
+				{
+					ObjectSlot obj = getServiceObjects.take(id);
+					getServiceStatus.remove(obj.id);
+					sendReturnValue(obj, ReturnValue(ReturnValue::GenericError, "Failed to fetch the service data from the ReturnValue!"));
+				}
+				serviceStatus["service_return"] = QVariant::fromValue(ret);
+				ret = data->callFunction(
+				          this,
+				          Signature("getServiceCompleted(uint, ReturnValue)"),
+				          Signature("auth(QtRpc::AuthToken)"),
+				          Arguments() << QVariant::fromValue(token));
+			}
+			break;
+		}
+		case 3:
+		{
+			// return from auth
+			ret = parseReturn(ret);
+			if (ret.isError())
+			{
+				ObjectSlot obj = getServiceObjects.take(id);
+				getServiceStatus.remove(obj.id);
+				sendReturnValue(obj, ret);
+			}
+			if (token.isDefault())
+				token = connection->token;
+			token.clientData()["auth_return"] = ret;
+
+			ObjectSlot obj = getServiceObjects.take(id);
+			getServiceStatus.remove(obj.id);
+			sendReturnValue(obj, serviceStatus["service_return"].value<ReturnValue>());
+			break;
+		}
+		default:
+			ObjectSlot obj = getServiceObjects.take(id);
+			getServiceStatus.remove(obj.id);
+			sendReturnValue(obj, ReturnValue(1, "Reached an known step in the service selecting process!"));
+			return;
+			break;
+	}
+	if (!getServiceStatus.contains(functionId)) // we're all done!
+		return;
+
+	if (ret.isError())
+	{
+		ObjectSlot obj = getServiceObjects.take(id);
+		getServiceStatus.remove(obj.id);
+		sendReturnValue(obj, ret);
+	}
+	else
+		getServiceObjects.insert(ret.toUInt(), getServiceObjects.take(id));
+	serviceStatus["step"] = serviceStatus.value("step").toUInt() + 1;
+	getServiceStatus.insert(functionId, serviceStatus);
+}
+
 ReturnValue ClientProxy::getService(QString service, AuthToken token)
 {
+	if (!qxt_d().connection)
+		return ReturnValue(1, "Not connected");
 	ReturnValue ret = qxt_d().connection->callFunction(Signature("version()"), Arguments());
 	if (ret.isError())
 	{
@@ -470,6 +716,8 @@ ReturnValue ClientProxy::getService(QString service, AuthToken token)
 	if (ret.toUInt() == 0)
 	{
 		// select service the old way
+		if (token.isDefault())
+			token = qxt_d().connection->token;
 		ret = qxt_d().parseReturn(qxt_d().connection->callFunction(Signature("selectService(QString, QString, QString)"), Arguments() << service << token.clientData()["username"] << token.clientData()["password"]));
 		if (!ret.isError())
 		{

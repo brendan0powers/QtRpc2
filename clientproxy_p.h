@@ -101,7 +101,7 @@ public:
 	void addProxy(ClientProxy* ptr);
 	// and then unregister when it's done
 	void removeProxy(ClientProxy* ptr);
-	
+
 	// function calling
 	ReturnValue callFunction(Signature sig, Arguments args); //out
 	ReturnValue callFunction(QObject* obj, Signature slot, Signature sig, Arguments args); //out
@@ -111,7 +111,7 @@ public:
 	QReadWriteLock mutex;
 	//This is a shared pointer and not a weak pointer so that connection always gets cleaned up last, because we need to send functions in the destructor... When the last client proxy goes away, the last servicedata will also go away (or have already gone) so connection *will* get cleaned up
 	QSharedPointer<ConnectionData> connection;
-	
+
 	// the "primary" cleint proxy is the one we call callbacks on, but events go to all client proxies
 	QPointer<ClientProxy> primary;
 	QList<ClientProxy*> list;
@@ -133,6 +133,7 @@ public:
 	{
 		QString slot;
 		QObject* object;
+		uint id;
 	};
 
 	QSharedPointer<ConnectionData> connection;
@@ -140,6 +141,9 @@ public:
 	// asyncronous calls get their return places put here, the key is the id of the function call
 	QHash<uint, ObjectSlot> connectObjects;
 	QHash<uint, ObjectSlot> functionObjects;
+	QHash<uint, ObjectSlot> getServiceObjects;
+	QHash<uint, ObjectSlot> selectServiceObjects;
+	QHash<uint, QVariantMap> getServiceStatus;
 	bool initialized;
 	// we have the mutex all returning asyncronous calls, because they're emitted using a signal...
 	QMutex signalerMutex;
@@ -156,7 +160,9 @@ public slots:
 	void receiveCallback(uint id, Signature sig, Arguments args); //in
 	void receiveEvent(Signature sig, Arguments args); //in
 	void disconnectedSlot(); //stupid name, i know...
-
+	void sendReturnValue(const ObjectSlot &obj, const ReturnValue &ret);
+	void getServiceCompleted(uint, ReturnValue);
+	void selectServiceCompleted(uint, ReturnValue);
 };
 }
 #endif
