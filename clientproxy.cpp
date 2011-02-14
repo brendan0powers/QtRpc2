@@ -463,6 +463,8 @@ void QtRpc::ClientProxyPrivate::connectCompleted(uint id, ReturnValue ret)
 void QtRpc::ClientProxyPrivate::sendReturnValue(const ObjectSlot &obj, const ReturnValue &ret)
 {
 	signalerMutex.lock();
+	if (!obj.object || obj.slot.isEmpty())
+		return;
 	if (obj.slot.contains("QtRpc::ReturnValue"))
 	{
 		QObject::connect(&(qxt_p()), SIGNAL(asyncronousSignalerNamespace(uint, QtRpc::ReturnValue)), obj.object, qPrintable(obj.slot), Qt::QueuedConnection);
@@ -811,22 +813,8 @@ void QtRpc::ClientProxyPrivate::functionCompleted(uint id, ReturnValue ret)
 {
 	ret = parseReturn(ret);
 	ObjectSlot obj = functionObjects.take(id);
-	if (!obj.object)
-		return;
-	signalerMutexFunction.lock();
-	if (obj.slot.contains("QtRpc::ReturnValue"))
-	{
-		QObject::connect(&(qxt_p()), SIGNAL(asyncronousSignalerNamespaceFunction(uint, QtRpc::ReturnValue)), obj.object, qPrintable(obj.slot), Qt::DirectConnection);
-		emit qxt_p().asyncronousSignalerNamespaceFunction(id, ret);
-		QObject::disconnect(&(qxt_p()), SIGNAL(asyncronousSignalerNamespaceFunction(uint, QtRpc::ReturnValue)), obj.object, qPrintable(obj.slot));
-	}
-	else
-	{
-		QObject::connect(&(qxt_p()), SIGNAL(asyncronousSignalerFunction(uint, ReturnValue)), obj.object, qPrintable(obj.slot), Qt::DirectConnection);
-		emit qxt_p().asyncronousSignalerFunction(id, ret);
-		QObject::disconnect(&(qxt_p()), SIGNAL(asyncronousSignalerFunction(uint, ReturnValue)), obj.object, qPrintable(obj.slot));
-	}
-	signalerMutexFunction.unlock();
+	obj.id = id;
+	sendReturnValue(obj, ret);
 }
 
 /**
