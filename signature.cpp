@@ -56,7 +56,12 @@ QtRpc::Signature::Signature(const char* sig)
 {
 	QXT_INIT_PRIVATE(Signature);
 	qxt_d().data = new SignatureData();
-	parse(sig);
+	if (sig != 0 && sig[0] == '1')
+	{
+		parse(QString(sig).mid(1));
+	}
+	else
+		parse(sig);
 }
 
 QtRpc::Signature& QtRpc::Signature::operator=(const QtRpc::Signature & other)
