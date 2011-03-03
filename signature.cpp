@@ -30,6 +30,7 @@
 
 #include <QRegExp>
 #include <QDebug>
+
 QtRpc::Signature::Signature()
 {
 	QXT_INIT_PRIVATE(Signature);
@@ -52,6 +53,7 @@ QtRpc::Signature::Signature(QString sig)
 	qxt_d().data = new SignatureData();
 	parse(sig);
 }
+
 QtRpc::Signature::Signature(const char* sig)
 {
 	QXT_INIT_PRIVATE(Signature);
@@ -70,12 +72,9 @@ QtRpc::Signature& QtRpc::Signature::operator=(const QtRpc::Signature & other)
 	return *this;
 }
 
-
 QtRpc::Signature::~Signature()
 {
 }
-
-
 
 /**
  * Parses a string, and sets the Signatures name and arguments acordingly
@@ -115,7 +114,6 @@ bool QtRpc::Signature::parse(const QString& sig)
 
 	return(true);
 }
-
 
 /**
  * @return Returns the name of the signatue
