@@ -67,6 +67,16 @@ SET(SOURCES ${SOURCES}
 
 INCLUDE_DIRECTORIES(./include/)
 
+IF(APPLE)
+SET(SOURCES ${SOURCES}
+        qxtmdns_bonjour.cpp
+)
+SET(HEADERS ${HEADERS}
+        qxtmdns_bonjour.h
+)
+
+ENDIF(APPLE)
+
 IF(WIN32)
 SET(SOURCES ${SOURCES}
 	qxtmdns_bonjour.cpp
@@ -104,39 +114,59 @@ INCLUDE_DIRECTORIES(
 )
 
 
-ELSE(WIN32)
+ENDIF(WIN32)
+
+IF(UNIX)
 SET(SOURCES ${SOURCES}
 	clientprotocolsocket.cpp
 	serverprotocollistenersocket.cpp
 	serverprotocolinstancesocket.cpp
-	qxtmdns_avahi.cpp
-	qxtavahipoll.cpp
 )
 SET(HEADERS ${HEADERS}
 	clientprotocolsocket.h
 	serverprotocollistenersocket.h
 	serverprotocolinstancesocket.h
+)
+
+ENDIF(UNIX)
+
+IF(LINUX)
+
+SET(SOURCES ${SOURCES}
+	qxtmdns_avahi.cpp
+	qxtavahipoll.cpp
+)
+SET(HEADERS ${HEADERS}
 	qxtmdns_avahi.h
 	qxtavahipoll.h
 	qxtavahipoll_p.h
 )
 
+
 SET(LIBRARIES ${LIBRARIES}
-	avahi-client
-	avahi-common
-	dns_sd
+        avahi-client
+        avahi-common
+        dns_sd
 )
 
-ENDIF(WIN32)
-
+ENDIF(LINUX)
 
 PROJECT_END()
 
+IF(APPLE)
+
+INSTALL(TARGETS qtrpc2 DESTINATION ${CMAKE_INSTALL_PREFIX}/rdsconsole.app/Contents/MacOS/)
+
+ELSE(APPLE)
+
 INSTALL(TARGETS qtrpc2
+	BUNDLE DESTINATION .
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 )
+
+ENDIF(APPLE)
 
 INSTALL_HEADERS("qtrpc2/")
 
