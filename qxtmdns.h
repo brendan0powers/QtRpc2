@@ -23,7 +23,7 @@
  **
  ****************************************************************************/
 
-#ifdef Q_OS_UNIX
+#ifdef Q_OS_LINUX
 #include <qxtmdns_avahi.h>
 #else
 #include <qxtmdns_bonjour.h>
