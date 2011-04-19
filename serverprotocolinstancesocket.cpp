@@ -139,6 +139,7 @@ void QtRpc::ServerProtocolInstanceSocket::init()
 	prepareDevice(qxt_d().socket);
 	qxt_d().socket->flush();
 
+#ifdef Q_OS_LINUX
 	struct ucred cr;
 	socklen_t cl = sizeof(cr);
 
@@ -152,6 +153,7 @@ void QtRpc::ServerProtocolInstanceSocket::init()
 	{
 		qWarning() << "Failed to get socket optios";
 	}
+#endif
 
 	//Immediatly put things in the service state
 	changeState(Service);
