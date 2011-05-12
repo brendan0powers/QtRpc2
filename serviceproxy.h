@@ -36,6 +36,7 @@
 #include <AuthToken>
 #include <QxtPimpl>
 #include <QtRpcGlobal>
+#include <QSharedPointer>
 
 
 #define QTRPC_SERVICEPROXY(srv) \
@@ -214,6 +215,8 @@ public:
 	void setId(quint32 id);
 
 protected:
+	QWeakPointer<ServiceProxy> weakPointer() const;
+	QWeakPointer<ServiceProxy>& weakPointer();
 	AuthToken authToken();
 	quint32 currentFunctionId() const;
 	void sendReturn(quint32 id, ReturnValue ret) const;

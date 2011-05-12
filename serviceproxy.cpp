@@ -93,7 +93,7 @@ ReturnValue QtRpc::ServiceProxy::functionCalled(const Signature& sig, const Argu
 		qCritical() << "Synchronous callbacks are not supported" << sig.toString();
 		return(ReturnValue(1, "Synchronous callbacks are not supported"));
 	}
-	if(!qxt_d().instance)
+	if (!qxt_d().instance)
 		return ReturnValue(1, "Invalid internal object");
 
 	qxt_d().instance->sendEvent(qxt_d().instance->serviceId(this), sig, args);
@@ -119,7 +119,7 @@ ReturnValue QtRpc::ServiceProxy::functionCalled(QObject *obj, const char *slot, 
 		return(ReturnValue(1, "Asynchronous events are not supported"));
 
 	}
-	if(!qxt_d().instance)
+	if (!qxt_d().instance)
 		return ReturnValue(1, "Invalid internal object");
 
 	//strip the argument list from the slot
@@ -210,7 +210,7 @@ void * QtRpc::ServiceProxy::setData(const QString& name, void *data)
  */
 bool QtRpc::ServiceProxy::setProtocolData(const QString& name, const QVariant& value)
 {
-	if(!qxt_d().instance)
+	if (!qxt_d().instance)
 		return false;
 	qxt_d().instance->setProperty(name, value);
 	return(true);
@@ -225,7 +225,7 @@ bool QtRpc::ServiceProxy::setProtocolData(const QString& name, const QVariant& v
  */
 QVariant QtRpc::ServiceProxy::getProtocolProperty(const QString& name) const
 {
-	if(!qxt_d().instance)
+	if (!qxt_d().instance)
 		return QVariant();
 	return(qxt_d().instance->getProperty(name));
 }
@@ -264,7 +264,7 @@ QString QtRpc::ServiceProxy::serviceName() const
 quint32 QtRpc::ServiceProxy::currentFunctionId() const
 {
 	QMutexLocker locker(const_cast<QMutex*>(&qxt_d().datamutex));
-	if(!qxt_d().instance)
+	if (!qxt_d().instance)
 		return -1;
 	return qxt_d().instance->currentFunctionId();
 }
@@ -272,10 +272,21 @@ quint32 QtRpc::ServiceProxy::currentFunctionId() const
 void QtRpc::ServiceProxy::sendReturn(quint32 id, ReturnValue ret) const
 {
 	QMutexLocker locker(const_cast<QMutex*>(&qxt_d().datamutex));
-	if(!qxt_d().instance)
+	if (!qxt_d().instance)
 		return;
 	qxt_d().instance->writeMessage(Message(id, ret));
 }
+
+QWeakPointer<QtRpc::ServiceProxy::ServiceProxy> QtRpc::ServiceProxy::weakPointer() const
+{
+	return qxt_d().weakPointer;
+}
+
+QWeakPointer<QtRpc::ServiceProxy::ServiceProxy>& QtRpc::ServiceProxy::weakPointer()
+{
+	return qxt_d().weakPointer;
+}
+
 
 
 
