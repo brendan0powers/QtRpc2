@@ -117,7 +117,7 @@ QtRpc::ReturnValue::ReturnValue(QtRpc::ServiceProxy* srv)
 	QXT_INIT_PRIVATE(ReturnValue);
 	qxt_d().data = new ReturnValueData();
 	qxt_d().data.data()->type = ReturnValueData::Service;
-	qxt_d().data.data()->service = srv->qxt_d().weakPointer;
+	qxt_d().data.data()->service = srv->weakPointer();
 	qxt_d().data.data()->rawServicePointer = srv;
 }
 
