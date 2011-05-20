@@ -176,7 +176,7 @@ ReturnValue ServerProtocolInstanceBase::callFunction(quint32 id, quint32 service
 		case ReturnValueData::Service:
 		{
 			QSharedPointer<ServiceProxy> srv;
-			if (ret.qxt_d().data->service.isNull())
+			if (rvData->service.isNull())
 			{
 				if (rvData->rawServicePointer->qxt_d().weakPointer.isNull())
 					srv = QSharedPointer<ServiceProxy>(rvData->rawServicePointer);
