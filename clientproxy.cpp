@@ -54,6 +54,7 @@ ServiceData::~ServiceData()
 	{
 		connection->callFunction(NULL, Signature(), Signature("destroyService(quint32)"), Arguments() << id);
 	}
+	connection->serviceDataObjects.remove(id);
 }
 
 void ServiceData::addProxy(ClientProxy* ptr)
