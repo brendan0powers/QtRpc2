@@ -69,7 +69,7 @@ public:
 	uint number;
 	QString string;
 	ServiceProxy* rawServicePointer;
-	QWeakPointer<ServiceProxy> service; //private api.... This is the server side holder for service's weak pointers...
+	QSharedPointer<ServiceProxy> service; //private api.... This is the server side holder for service's weak pointers...
 	QSharedPointer<ServiceData> serviceData; //private api... This is the client side service thing, not service proxy
 	quint32 serviceId;
 };
