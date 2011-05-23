@@ -179,7 +179,7 @@ ReturnValue ServerProtocolInstanceBase::callFunction(quint32 id, quint32 service
 			if (rvData->service.isNull())
 			{
 				if (rvData->rawServicePointer->qxt_d().weakPointer.isNull())
-					srv = QSharedPointer<ServiceProxy>(rvData->rawServicePointer);
+					srv = QSharedPointer<ServiceProxy>(rvData->rawServicePointer, &QObject::deleteLater);
 				else
 					srv = rvData->rawServicePointer->qxt_d().weakPointer.toStrongRef();
 				rvData->rawServicePointer->qxt_d().weakPointer = srv;
