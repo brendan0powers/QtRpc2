@@ -83,6 +83,8 @@ public:
 		ServiceFinder::Event event();
 		void setPort(quint16 port);
 		quint16 port();
+		QString hostname();
+		void setHostname(const QString &host);
 
 	private:
 		QXT_DECLARE_PRIVATE(Service);

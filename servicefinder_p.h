@@ -77,6 +77,7 @@ public:
 	QHostAddress address;
 	ServiceFinder::Event event;
 	quint16 port;
+	QString hostname;
 };
 
 }

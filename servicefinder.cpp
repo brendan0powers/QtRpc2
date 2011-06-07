@@ -167,6 +167,7 @@ void ServiceFinderPrivate::resolved(const QByteArray& domainName)
 	int id = QxtDiscoverableServiceName::lookupHost(resolver->host(), this, SLOT(getAddress(QHostInfo)));
 	resolveQueue[id] = serviceQueue.value(oldid);
 	resolveQueue[id].setPort(resolver->port());
+	resolveQueue[id].setHostname(resolver->host());
 	resolver->deleteLater();
 }
 
@@ -258,6 +259,7 @@ ServiceFinder::Service& ServiceFinder::Service::operator=(const Service & other)
 	qxt_d().address = other.qxt_d().address;
 	qxt_d().event = other.qxt_d().event;
 	qxt_d().port = other.qxt_d().port;
+	qxt_d().hostname = other.qxt_d().hostname;
 
 	return *this;
 }
@@ -344,6 +346,16 @@ void ServiceFinder::Service::setPort(quint16 port)
 quint16 ServiceFinder::Service::port()
 {
 	return qxt_d().port;
+}
+
+QString ServiceFinder::Service::hostname()
+{
+	return(qxt_d().hostname);
+}
+
+void ServiceFinder::Service::setHostname(const QString& host)
+{
+	qxt_d().hostname = host;
 }
 
 
