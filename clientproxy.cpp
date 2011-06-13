@@ -942,7 +942,7 @@ void QtRpc::ClientProxyPrivate::disconnectedSlot()
 // handles putting the servicedata into the returnvalue so that clients can be assigned to it
 ReturnValue ClientProxyPrivate::parseReturn(ReturnValue ret)
 {
-	QReadLocker locker(&connection->mutex);
+	QWriteLocker locker(&connection->mutex);
 	ReturnValueData* rtData = const_cast<ReturnValueData*>(ret.qxt_d().data.constData());
 	if (ret.isService())
 	{
@@ -955,7 +955,6 @@ ReturnValue ClientProxyPrivate::parseReturn(ReturnValue ret)
 		}
 		else
 		{
-
 			ReturnValueData* rtData = const_cast<ReturnValueData*>(ret.qxt_d().data.constData());
 			rtData->serviceData = connection->serviceDataObjects.value(id);
 		}
