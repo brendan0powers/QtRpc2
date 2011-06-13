@@ -42,7 +42,7 @@ using namespace QtRpc;
 
 ServiceData::ServiceData(quint32 _id, QSharedPointer<ConnectionData> _connection)
 		: id(_id),
-		mutex(QReadWriteLock::Recursive),
+		mutex(QMutex::Recursive),
 		connection(_connection),
 		primary(0)
 {
@@ -50,7 +50,7 @@ ServiceData::ServiceData(quint32 _id, QSharedPointer<ConnectionData> _connection
 
 ServiceData::~ServiceData()
 {
-	QWriteLocker locker(&connection->mutex);
+	QMutexLocker locker(&connection->mutex);
 	if (connection->state != ClientProxy::Disconnected && !connection->bus.isNull())
 	{
 		connection->callFunction(NULL, Signature(), Signature("destroyService(quint32)"), Arguments() << id);
@@ -60,7 +60,7 @@ ServiceData::~ServiceData()
 
 void ServiceData::addProxy(ClientProxy* ptr)
 {
-	QWriteLocker locker(&mutex);
+	QMutexLocker locker(&mutex);
 	// make sure we always have a primary
 	if (primary.isNull())
 		primary = ptr;
@@ -69,7 +69,7 @@ void ServiceData::addProxy(ClientProxy* ptr)
 
 void ServiceData::removeProxy(ClientProxy* ptr)
 {
-	QWriteLocker locker(&mutex);
+	QMutexLocker locker(&mutex);
 	list.removeAll(ptr);
 	if (primary == ptr)
 	{
@@ -83,7 +83,7 @@ void ServiceData::removeProxy(ClientProxy* ptr)
 
 void ServiceData::sendEvent(Signature sig, Arguments args)
 {
-	QReadLocker locker(&mutex);
+	QMutexLocker locker(&mutex);
 	foreach(ClientProxy* service, list)
 	{
 		service->qxt_d().receiveEvent(sig, args);
@@ -92,7 +92,7 @@ void ServiceData::sendEvent(Signature sig, Arguments args)
 
 void ServiceData::sendCallback(uint id, Signature sig, Arguments args)
 {
-	QWriteLocker locker(&mutex);
+	QMutexLocker locker(&mutex);
 	if (primary.isNull())
 	{
 		// make sure we always have a primary
@@ -132,7 +132,7 @@ ConnectionData::~ConnectionData()
 
 void ConnectionData::sendEvent(Message msg)
 {
-	QReadLocker locker(&mutex);
+	QMutexLocker locker(&mutex);
 	if (serviceDataObjects.count() < 1)
 		return;
 	if (msg.version() == 0)
@@ -151,7 +151,7 @@ void ConnectionData::sendEvent(Message msg)
 
 void ConnectionData::sendCallback(Message msg)
 {
-	QReadLocker locker(&mutex);
+	QMutexLocker locker(&mutex);
 	if (serviceDataObjects.count() < 1)
 		return;
 	if (msg.version() == 0)
@@ -170,13 +170,13 @@ void ConnectionData::sendCallback(Message msg)
 
 void ConnectionData::registerServiceData(quint32 id, QWeakPointer<ServiceData> srv)
 {
-	QWriteLocker locker(&mutex);
+	QMutexLocker locker(&mutex);
 	serviceDataObjects[id] = srv;
 }
 
 void ConnectionData::unregisterServiceData(quint32 id)
 {
-	QWriteLocker locker(&mutex);
+	QMutexLocker locker(&mutex);
 	serviceDataObjects.remove(id);
 }
 
@@ -752,7 +752,7 @@ ReturnValue ClientProxy::getService(QString service, AuthToken token)
 		ReturnValue ret2 = qxt_d().parseReturn(data->callFunction(Signature("auth(QtRpc::AuthToken)"), Arguments() << QVariant::fromValue(token)));
 		if (ret2.isError())
 			return ret2;
-		QWriteLocker locker(&qxt_d().connection->mutex);
+		QMutexLocker locker(&qxt_d().connection->mutex);
 		qxt_d().connection->token.clientData()["auth_return"] = ret2;
 		return ret;
 	}
@@ -886,13 +886,13 @@ void QtRpc::ClientProxyPrivate::receiveEvent(Signature sig, Arguments args)
 void QtRpc::ClientProxy::disconnect()
 {
 	{
-		QReadLocker locker(&qxt_d().connection->mutex);
+		QMutexLocker locker(&qxt_d().connection->mutex);
 		if (qxt_d().connection->bus.isNull())
 			return;
 		if (qxt_d().connection->state == Disconnected)
 			return;
 	}
-	QWriteLocker locker(&qxt_d().connection->mutex);
+	QMutexLocker locker(&qxt_d().connection->mutex);
 	Arguments args;
 	Signature sig("disconnect()");
 	qxt_d().connection->state = Disconnected;
@@ -926,13 +926,13 @@ ReturnValue ClientProxy::listEvents(const QString &service)
 void QtRpc::ClientProxyPrivate::disconnectedSlot()
 {
 	{
-		QReadLocker locker(&connection->mutex);
+		QMutexLocker locker(&connection->mutex);
 		if (connection->bus.isNull())
 			return;
 		if (connection->state == ClientProxy::Disconnected)
 			return;
 	}
-	QWriteLocker locker(&connection->mutex);
+	QMutexLocker locker(&connection->mutex);
 	connection->state = ClientProxy::Disconnected;
 
 	connection->bus->deleteLater();
@@ -942,7 +942,7 @@ void QtRpc::ClientProxyPrivate::disconnectedSlot()
 // handles putting the servicedata into the returnvalue so that clients can be assigned to it
 ReturnValue ClientProxyPrivate::parseReturn(ReturnValue ret)
 {
-	QWriteLocker locker(&connection->mutex);
+	QMutexLocker locker(&connection->mutex);
 	ReturnValueData* rtData = const_cast<ReturnValueData*>(ret.qxt_d().data.constData());
 	if (ret.isService())
 	{

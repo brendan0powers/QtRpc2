@@ -72,7 +72,7 @@ class ConnectionData : public QObject, public QSharedData
 	Q_OBJECT
 public:
 	ConnectionData()
-			: mutex(QReadWriteLock::Recursive)
+			: mutex(QMutex::Recursive)
 	{
 	}
 	~ConnectionData();
@@ -85,7 +85,7 @@ public:
 	ReturnValue callFunction(Signature sig, Arguments args); //out
 	ReturnValue callFunction(QObject* obj, Signature slot, Signature sig, Arguments args); //out
 
-	QReadWriteLock mutex;
+	QMutex mutex;
 	ClientProxy::State state;
 	QPointer<ClientMessageBus> bus;
 	QHash<quint32, QWeakPointer<ServiceData> > serviceDataObjects;
@@ -116,7 +116,7 @@ public:
 
 	// service ID from the server side
 	quint32 id;
-	QReadWriteLock mutex;
+	QMutex mutex;
 	//This is a shared pointer and not a weak pointer so that connection always gets cleaned up last, because we need to send functions in the destructor... When the last client proxy goes away, the last servicedata will also go away (or have already gone) so connection *will* get cleaned up
 	QSharedPointer<ConnectionData> connection;
 
