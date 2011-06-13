@@ -298,7 +298,7 @@ ReturnValue ProxyBase::emitSignal(Signature sig, Arguments args)
 	//didn't find one
 	if (index == -1)
 	{
-		return(ReturnValue(1, "Signal not found: " + sig.toString()));
+		return(ReturnValue(1, QString("Signal not found in %1: %2").arg(metaObject()->className()).arg(sig.toString())));
 	}
 
 	return callMetacall(sig, args);
