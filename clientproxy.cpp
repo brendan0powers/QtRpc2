@@ -40,8 +40,9 @@
 
 using namespace QtRpc;
 
-ServiceData::ServiceData(quint32 _id, QSharedPointer<ConnectionData> _connection) :
-		id(_id),
+ServiceData::ServiceData(quint32 _id, QSharedPointer<ConnectionData> _connection)
+		: id(_id),
+		mutex(QReadWriteLock::Recursive),
 		connection(_connection),
 		primary(0)
 {

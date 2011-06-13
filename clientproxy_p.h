@@ -71,6 +71,10 @@ class ConnectionData : public QObject, public QSharedData
 {
 	Q_OBJECT
 public:
+	ConnectionData()
+			: mutex(QReadWriteLock::Recursive)
+	{
+	}
 	~ConnectionData();
 	// All service data objects must register themselves with the connection
 	void registerServiceData(quint32 id, QWeakPointer<ServiceData> srv);
@@ -99,7 +103,7 @@ class ServiceData : public QObject, public QSharedData
 	Q_OBJECT
 public:
 	// Has to be constructed with the ID of the service object on the server side it goes with, and a connection object to use
-	ServiceData(quint32 _id, QSharedPointer<ConnectionData> _connection);
+	explicit ServiceData(quint32 _id, QSharedPointer<ConnectionData> _connection);
 	~ServiceData();
 	// Whenever a new client starts sharing this service object it must register itself to work properly
 	void addProxy(ClientProxy* ptr);
