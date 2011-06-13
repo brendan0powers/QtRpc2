@@ -49,12 +49,12 @@ ServiceData::ServiceData(quint32 _id, QSharedPointer<ConnectionData> _connection
 
 ServiceData::~ServiceData()
 {
-	// Don't lock because when this is destroyed, there is only 1 reference anyway
+	QWriteLocker locker(&connection->mutex);
 	if (connection->state != ClientProxy::Disconnected && !connection->bus.isNull())
 	{
 		connection->callFunction(NULL, Signature(), Signature("destroyService(quint32)"), Arguments() << id);
 	}
-	connection->serviceDataObjects.remove(id);
+	connection->unregisterServiceData(id);
 }
 
 void ServiceData::addProxy(ClientProxy* ptr)
@@ -143,9 +143,9 @@ void ConnectionData::sendEvent(Message msg)
 	// route it to the proper servicedata object and let it route it to the proper client proxies...
 	if (!serviceDataObjects.contains(msg.service()))
 		return;
-	if (!serviceDataObjects[msg.service()])
+	if (serviceDataObjects.value(msg.service()).isNull())
 		return;
-	serviceDataObjects[msg.service()].data()->sendEvent(msg.signature(), msg.arguments());
+	serviceDataObjects.value(msg.service()).data()->sendEvent(msg.signature(), msg.arguments());
 }
 
 void ConnectionData::sendCallback(Message msg)
@@ -162,9 +162,9 @@ void ConnectionData::sendCallback(Message msg)
 	// route it to the proper servicedata object and let it route it to the proper client proxies...
 	if (!serviceDataObjects.contains(msg.service()))
 		return;
-	if (!serviceDataObjects[msg.service()])
+	if (serviceDataObjects.value(msg.service()).isNull())
 		return;
-	serviceDataObjects[msg.service()].data()->sendCallback(msg.id(), msg.signature(), msg.arguments());
+	serviceDataObjects.value(msg.service()).data()->sendCallback(msg.id(), msg.signature(), msg.arguments());
 }
 
 void ConnectionData::registerServiceData(quint32 id, QWeakPointer<ServiceData> srv)
@@ -629,7 +629,7 @@ void ClientProxyPrivate::getServiceCompleted(uint id, ReturnValue ret)
 				if (!ret.isError())
 				{
 					QSharedPointer<ServiceData> data(new ServiceData(0, connection));
-					connection->serviceDataObjects.insert(0, data);
+					connection->registerServiceData(0, data);
 					if (!this->service.isNull())
 						this->service->removeProxy(&qxt_p());
 					this->service = data;
@@ -729,7 +729,7 @@ ReturnValue ClientProxy::getService(QString service, AuthToken token)
 		if (!ret.isError())
 		{
 			QSharedPointer<ServiceData> data(new ServiceData(0, qxt_d().connection));
-			qxt_d().connection->serviceDataObjects.insert(0, data);
+			qxt_d().connection->registerServiceData(0, data);
 			if (!qxt_d().service.isNull())
 				qxt_d().service->removeProxy(this);
 			qxt_d().service = data;
@@ -751,6 +751,7 @@ ReturnValue ClientProxy::getService(QString service, AuthToken token)
 		ReturnValue ret2 = qxt_d().parseReturn(data->callFunction(Signature("auth(QtRpc::AuthToken)"), Arguments() << QVariant::fromValue(token)));
 		if (ret2.isError())
 			return ret2;
+		QWriteLocker locker(&qxt_d().connection->mutex);
 		qxt_d().connection->token.clientData()["auth_return"] = ret2;
 		return ret;
 	}
@@ -760,7 +761,9 @@ ReturnValue ClientProxy::getService(QString service, AuthToken token)
 ReturnValue ClientProxy::deselectService()
 {
 	if (!qxt_d().service.isNull())
+	{
 		qxt_d().service->removeProxy(this);
+	}
 	qxt_d().service = QSharedPointer<ServiceData>();
 	return true;
 }
@@ -938,6 +941,7 @@ void QtRpc::ClientProxyPrivate::disconnectedSlot()
 // handles putting the servicedata into the returnvalue so that clients can be assigned to it
 ReturnValue ClientProxyPrivate::parseReturn(ReturnValue ret)
 {
+	QReadLocker locker(&connection->mutex);
 	ReturnValueData* rtData = const_cast<ReturnValueData*>(ret.qxt_d().data.constData());
 	if (ret.isService())
 	{
@@ -946,7 +950,7 @@ ReturnValue ClientProxyPrivate::parseReturn(ReturnValue ret)
 		{
 			QSharedPointer<ServiceData> data(new ServiceData(id, connection));
 			rtData->serviceData = data;
-			connection->serviceDataObjects.insert(id, data);
+			connection->registerServiceData(id, data);
 		}
 		else
 		{
