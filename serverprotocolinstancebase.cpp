@@ -66,7 +66,7 @@ ServerProtocolInstanceBase::ServerProtocolInstanceBase(Server* serv, QObject *pa
  */
 ServerProtocolInstanceBase::~ServerProtocolInstanceBase()
 {
-	foreach(QSharedPointer<ServiceProxy> srv, services.values())
+	foreach(QSharedPointer<ServiceProxy> srv, qxt_d().services.values())
 	{
 		if (srv.isNull())
 			continue;
