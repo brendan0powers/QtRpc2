@@ -240,7 +240,7 @@ ClientProxy::ClientProxy(const ClientProxy& cp, QObject *parent) : ProxyBase(par
  */
 ClientProxy::~ClientProxy()
 {
-	// We use shared pointers to remove everything. Win!
+	qxt_d().service->removeProxy(this);
 }
 
 ClientProxy::State ClientProxy::state()
