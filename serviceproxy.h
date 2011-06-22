@@ -111,8 +111,6 @@ class TestService : public ServiceProxy
 {
 	Q_OBJECT
 	public:
-	QTRPC_SERVICE(TestService); //Important, see below
-
 	TestService(QObject *parent = 0) {} //Don't put anything in the constructory, do initialization in auth
 	~TestService();
 
@@ -156,7 +154,7 @@ class TestService : public ServiceProxy
 };
 @endcode
 
-	The service above is named TestService, and has 1 event, 1 callback, and 3 functions. Notice the QTRPC_SERVICE macro at the top of the service. This must be added, or new instances of the service cannot be created.
+	The service above is named TestService, and has 1 event, 1 callback, and 3 functions.
 
 	Every service must implement an auth() function. The auth takes a username and password as strings. If authentication succeedes, you can return any value. If authentication failes, you must return an error. Also, any initialization of the service object must be done ohere, and not in the costructor.
 
@@ -219,12 +217,14 @@ protected:
 	QWeakPointer<ServiceProxy>& weakPointer();
 	AuthToken authToken();
 	quint32 currentFunctionId() const;
-	void sendReturn(quint32 id, ReturnValue ret) const;
 	virtual ReturnValue functionCalled(const Signature& sig, const Arguments& args, const QString& type);
 	virtual ReturnValue functionCalled(QObject *obj, const char *slot, const Signature& sig, const Arguments& args, const QString& type);
 
+protected slots:
+	void sendReturn(quint32 id, ReturnValue ret) const;
 };
 
 }
 
+Q_DECLARE_METATYPE(QtRpc::ServiceProxy*);
 #endif

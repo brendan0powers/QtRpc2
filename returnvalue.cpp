@@ -71,6 +71,9 @@ void registerMetaTypes()
 		qRegisterMetaType<Message>("QtRpc::Message");
 		qRegisterMetaType<Message>("Message");
 
+		qRegisterMetaType<QtRpc::ServiceProxy*>("QtRpc::ServiceProxy*");
+		qRegisterMetaType<ServiceProxy*>("ServiceProxy*");
+
 		qRegisterMetaType<ServiceFinder::Service>("ServiceFinder::Service");
 		qtrpc_metatypes_registered = true;
 	}

@@ -95,6 +95,7 @@ public:
 	virtual void sendEvent(quint32 id, Signature func, Arguments args) = 0;
 	void moveToThread(QThread*);
 	AuthToken defaultToken();
+	void parseReturn(ReturnValue& ret);
 
 public slots:
 	/**

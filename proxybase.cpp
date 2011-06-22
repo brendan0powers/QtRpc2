@@ -78,6 +78,7 @@
 #include <QTime>
 #include <QUrl>
 #include <QThread>
+#include <QScopedPointer>
 #include <Message>
 #include <authtoken.h>
 
@@ -344,13 +345,22 @@ ReturnValue ProxyBase::callMetacall(Signature sig, Arguments args)
 
 	// Create the return value
 	ReturnValue ret;
+	QList<QByteArray> bagarbageCollector;
+	QList<QSharedPointer<const char*> > garbageCollector;
 
 	// Create an array of void pointers and place the QVariants into it... I don't know why this works, but it does.
 	void *param[] = {(void *)&ret, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 	for (int i = 0; i < sig.numArgs(); i++)
 	{
-		if (sig.arg(i) != "QVariant" && args[i].type() == QVariant::UserType)
+		if (sig.arg(i) == "char*" || sig.arg(i) == "const char*")
+		{
+			garbageCollector.append(QSharedPointer<const char*>(new const char*));
+			bagarbageCollector.append(args[i].toString().toLocal8Bit());
+			*garbageCollector.last().data() = bagarbageCollector.last().constData();
+			param[i+1] = garbageCollector.last().data();
+		}
+		else if (sig.arg(i) != "QVariant" && args.at(i).type() == QVariant::UserType)
 		{
 			param[i+1] = args[i].data();
 		}

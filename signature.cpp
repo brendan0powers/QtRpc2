@@ -35,6 +35,8 @@
 #include <QRegExp>
 #include <QDebug>
 
+using namespace QtRpc;
+
 QtRpc::Signature::Signature()
 {
 	QXT_INIT_PRIVATE(Signature);
@@ -196,17 +198,16 @@ bool QtRpc::Signature::setArg(int num, QString value)
 QString QtRpc::Signature::test(const QVariantList& list) const
 {
 	if (qxt_d().data->args.size() != list.size()) return(QString("the number of arguments is %1, it should be %2").arg(list.size()).arg(qxt_d().data->args.size()));
-	int i = 0;
-	foreach(QVariant v, list)
+	for (int i = 0; i < list.count(); ++i)
 	{
-		if (QMetaType::type(v.typeName()) != QMetaType::type(qPrintable(qxt_d().data->args[i])))
+		if (qxt_d().data->args.at(i) == "QVariant")
+			continue;
+		if (list.at(i).type() == 10 && (qxt_d().data->args.at(i) == "char*" || qxt_d().data->args.at(i) == "const char*"))
+			continue;
+		if (QMetaType::type(list.at(i).typeName()) != QMetaType::type(qPrintable(qxt_d().data->args.at(i))))
 		{
-			if (qxt_d().data->args[i] != "QVariant")
-			{
-				return(QString("argument %1 is %2, it should be %3 (%4 %5)").arg(i).arg(v.typeName()).arg(qxt_d().data->args[i]).arg(QMetaType::type(v.typeName())).arg(QMetaType::type(qPrintable(qxt_d().data->args[i]))));
-			}
+			return(QString("argument %1 is %2, it should be %3 (%4 %5)").arg(i).arg(list.at(i).typeName()).arg(qxt_d().data->args.at(i)).arg(QMetaType::type(list.at(i).typeName())).arg(QMetaType::type(qPrintable(qxt_d().data->args.at(i)))));
 		}
-		i++;
 	}
 
 	return(QString()); //on success return a null string
@@ -291,7 +292,6 @@ void QtRpc::Signature::setArgs(const QVector<QString>& args)
 {
 	qxt_d().data->args = args;
 }
-
 
 /**
  * Makes sure that all the arguments are types suported by QVariant

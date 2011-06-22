@@ -239,7 +239,24 @@ QVariant QtRpc::ServiceProxy::getProtocolProperty(const QString& name) const
  */
 ReturnValue QtRpc::ServiceProxy::callFunction(const Signature& sig, const Arguments& args)
 {
-	return(callCallback(sig , args));
+	QList<Signature> siglist = listCallbacks();
+
+	Signature asyncSig = sig;
+	QVector<QString> arglist = asyncSig.args();
+	arglist.prepend("const char*");
+	arglist.prepend("QObject*");
+	asyncSig.setArgs(arglist);
+	if (siglist.contains(asyncSig))
+	{
+		Arguments asyncArgs = args;
+		asyncArgs.prepend(SLOT(sendReturn(quint32, ReturnValue)));
+		asyncArgs.prepend(QVariant::fromValue(static_cast<QObject*>(this)));
+		ReturnValue ret = callCallback(asyncSig, asyncArgs);
+		if (ret.isError())
+			return ret;
+		return ReturnValue::asyncronous();
+	}
+	return callCallback(sig, args);
 }
 
 }
@@ -274,15 +291,16 @@ void QtRpc::ServiceProxy::sendReturn(quint32 id, ReturnValue ret) const
 	QMutexLocker locker(const_cast<QMutex*>(&qxt_d().datamutex));
 	if (!qxt_d().instance)
 		return;
+	qxt_d().instance->parseReturn(ret);
 	qxt_d().instance->writeMessage(Message(id, ret));
 }
 
-QWeakPointer<QtRpc::ServiceProxy::ServiceProxy> QtRpc::ServiceProxy::weakPointer() const
+QWeakPointer<QtRpc::ServiceProxy> QtRpc::ServiceProxy::weakPointer() const
 {
 	return qxt_d().weakPointer;
 }
 
-QWeakPointer<QtRpc::ServiceProxy::ServiceProxy>& QtRpc::ServiceProxy::weakPointer()
+QWeakPointer<QtRpc::ServiceProxy>& QtRpc::ServiceProxy::weakPointer()
 {
 	return qxt_d().weakPointer;
 }

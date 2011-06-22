@@ -33,8 +33,8 @@
 #define QTRPCSIGNATURE_H
 
 #include <QxtPimpl>
-#include <QVariant>
 #include <QVector>
+#include <QVariant>
 #include <QtRpcGlobal>
 
 class QString;
@@ -42,8 +42,8 @@ class QStringList;
 
 namespace QtRpc
 {
-	class Signature;
-	class SignaturePrivate;
+class Signature;
+class SignaturePrivate;
 }
 
 QTRPC2_EXPORT QDataStream& operator>> (QDataStream& s, QtRpc::Signature& p);
@@ -82,11 +82,14 @@ public:
 	void setNumArgs(int num);
 	QString arg(int num) const;
 	bool setArg(int num, QString value);
+	QVector<QString> args() const;
+	void setArgs(const QVector<QString>&);
+
 	QString test(const QVariantList& list) const;
 	QString test(QVariant arg1 = QVariant(), QVariant arg2 = QVariant(), QVariant arg3 = QVariant(), QVariant arg4 = QVariant(), QVariant arg5 = QVariant(), QVariant arg6 = QVariant(), QVariant arg7 = QVariant(), QVariant arg8 = QVariant(), QVariant arg9 = QVariant(), QVariant arg10 = QVariant()) const;
 	bool operator==(const Signature &sig) const;
-	QVector<QString> args() const;
-	void setArgs(const QVector<QString>&);
+
+
 	bool validate() const;
 	QtRpc::Signature& operator=(const Signature& other);
 

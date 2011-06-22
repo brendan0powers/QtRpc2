@@ -176,6 +176,12 @@ ReturnValue ServerProtocolInstanceBase::callFunction(quint32 id, quint32 service
 	}
 
 	qxt_d().currentFunctionId = 0;
+	parseReturn(ret);
+	return ret;
+}
+
+void ServerProtocolInstanceBase::parseReturn(ReturnValue& ret)
+{
 	ReturnValueData* rvData = const_cast<ReturnValueData*>(ret.qxt_d().data.constData());
 	switch (rvData->type)
 	{
@@ -209,7 +215,6 @@ ReturnValue ServerProtocolInstanceBase::callFunction(quint32 id, quint32 service
 		case ReturnValueData::Asyncronous:
 			break;
 	}
-	return ret;
 }
 
 AuthToken ServerProtocolInstanceBase::defaultToken()

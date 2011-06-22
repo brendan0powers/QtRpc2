@@ -468,7 +468,7 @@ void QtRpc::ClientProxyPrivate::connectCompleted(uint id, ReturnValue ret)
 
 void QtRpc::ClientProxyPrivate::sendReturnValue(const ObjectSlot &obj, const ReturnValue &ret)
 {
-	signalerMutex.lock();
+	QMutexLocker locker(&signalerMutex);
 	if (!obj.object || obj.slot.isEmpty())
 		return;
 	if (obj.slot.contains("QtRpc::ReturnValue"))
@@ -483,7 +483,6 @@ void QtRpc::ClientProxyPrivate::sendReturnValue(const ObjectSlot &obj, const Ret
 		emit qxt_p().asyncronousSignaler(obj.id, ret);
 		QObject::disconnect(&(qxt_p()), SIGNAL(asyncronousSignaler(uint, ReturnValue)), obj.object, qPrintable(obj.slot));
 	}
-	signalerMutex.unlock();
 }
 
 // overloaded
