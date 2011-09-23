@@ -126,6 +126,7 @@ bool ClientProtocolIODevicePrivate::checkProtocolFunction(Message msg)
 			}
 			qxt_p().setVersion(sversion);
 			qxt_p().connected();
+			emit qxt_p().returnReceived(Message(qxt_p().connectId(), ReturnValue(true)));
 			return true;
 		}
 		// The server is now reading in a verion not supported by this client, there is no hope.
@@ -162,10 +163,9 @@ bool ClientProtocolIODevicePrivate::checkProtocolFunction(Message msg)
 			case 0:// Connecting, we should never see this though...
 				break;
 			case 1:// Service
+				//if there is no service to select, don't select any.
 				if (qxt_p().getServiceName().isEmpty())
 				{
-					// no service to select, return from connect with true (services are optional now)
-					emit qxt_p().returnReceived(Message(qxt_p().connectId(), ReturnValue(true)));
 					break;
 				}
 				selectService();
