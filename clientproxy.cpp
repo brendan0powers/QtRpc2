@@ -240,7 +240,7 @@ ClientProxy::ClientProxy(const ClientProxy& cp, QObject *parent) : ProxyBase(par
  */
 ClientProxy::~ClientProxy()
 {
-	qxt_d().service->removeProxy(this);
+	if(qxt_d().service != NULL) qxt_d().service->removeProxy(this);
 }
 
 ClientProxy::State ClientProxy::state()
