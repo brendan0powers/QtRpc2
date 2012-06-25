@@ -393,7 +393,7 @@ void QxtDiscoverableService::releaseService()
 {
 	if (state() != Registered && state() != Resolved)
 	{
-		qWarning() << "QxtDiscoverableService: Attempting to unregister an unresolved, unregistered service";
+		//qWarning() << "QxtDiscoverableService: Attempting to unregister an unresolved, unregistered service";
 	}
 	else
 	{
