@@ -37,14 +37,25 @@ int main(int argc, char *argv[])
 {
 	QApplication app(argc,argv);
 
+    //Create a server object with default threading options
     Server srv;
+
+    //Create a TCP listener object
     ServerProtocolListenerTcp tcp(&srv);
+
+    //Listen on port 10123 on all network interfaces
     if(!tcp.listen(QHostAddress::Any, 10123))
     {
+        //This function returns false if the port is busy
         qCritical() << "Failed to listen on port 10123!";
         return(1);
     }
 
+    //Register a service. The template argument is the ServiceProxy class to use
+    //The string argument is the name used to connect to the service
+    //A new instance of the BasicService class is created each time a client connects
     srv.registerService<BasicService>("MyService");
+
+    //Process Events
 	return app.exec();
 }

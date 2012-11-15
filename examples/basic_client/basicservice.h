@@ -32,12 +32,20 @@
 
 using namespace QtRpc;
 
+//Client service inherit from ClientProxy
+//Inheriting from another client service is also allowed
 class BasicService : public ClientProxy
 {
     Q_OBJECT
 public:
     explicit BasicService(QObject *parent = 0);
     
+    //Functions to be called over the network are signals with
+    //a return value of ReturnValue. Running or calling this signal
+    //Will call the remote services function, and return the result.
+    //
+    //Note that signals have been redeclared public, so you can call them
+    //from outside the class...
 signals:
     ReturnValue addNumbers(int a, int b);
 };

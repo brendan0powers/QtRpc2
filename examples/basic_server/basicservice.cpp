@@ -28,16 +28,26 @@
 #include "basicservice.h"
 #include <QDebug>
 
+//This is run after a client connects, but before authentication takes place.
+//You can do initializtion here, but do nothing that requires authentication.
 BasicService::BasicService(QObject *parent) :
     ServiceProxy(parent)
 {
 }
 
+//Authentication function. Currently allows anyone to connect
+//To return an authentication failure, use
+//return(ReturnValue(1,"Incorrect username or password"));
+//The first argument is the error number, the second is the error string.
+//Both values can be set to anything, and only have value to the application
 ReturnValue BasicService::auth(QString user, QString pass)
 {
     return(true);
 }
 
+//Adds two numbers, and returns the result. This function is called by the client.
+//If for some reason a failure needs to be returned
+//Use the same process as the auth() function uses.
 ReturnValue BasicService::addNumbers(int a, int b)
 {
     qDebug() << "addNumbers() called.";

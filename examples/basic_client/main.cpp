@@ -33,14 +33,21 @@ int main(int argc, char *argv[])
 {
 	QApplication app(argc,argv);
 
+    //Create an instance of the service object
     BasicService service;
+
+    //Connect to the server, specifying the port, and the remove service to connect to
     ReturnValue ret = service.connect("tcp://localhost:10123/MyService");
+    //If the connection failes, ret.isError() will be true
     if(ret.isError())
     {
+        //You can use ReturnValues in qDebug() statements to quickly print error messages.
         qCritical() << "Failed to connect:" << ret;
         return(1);
     }
 
+    //Run the remove function. This will block untill the function returns,
+    //Or untill the default time-out is reached
     ret = service.addNumbers(3,5);
     if(ret.isError())
     {
@@ -48,5 +55,6 @@ int main(int argc, char *argv[])
         return(1);
     }
 
+    //You can use ReturnValue just like a QVariant
     qDebug() << "Result:" << ret.toInt();
 }

@@ -27,6 +27,8 @@
  ***************************************************************************/
 #include "basicservice.h"
 
+//You don't have to do anything here.
+
 BasicService::BasicService(QObject *parent) :
     ClientProxy(parent)
 {

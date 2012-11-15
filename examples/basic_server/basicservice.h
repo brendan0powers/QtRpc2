@@ -32,14 +32,20 @@
 
 using namespace QtRpc;
 
+//All services must inherit from the ServiceProxy class.
+//Inheriting from another service is also supported.
 class BasicService : public ServiceProxy
 {
     Q_OBJECT
 public:
     explicit BasicService(QObject *parent = 0);
 
+    //This is the authentication function called by QtRpc2 uppon connection
     virtual ReturnValue auth(QString user, QString pass);
     
+    //To allow functions to be called over the network, they must be public
+    //slots, and have a return type of ReturnValue. This automatically registers
+    //them to be used for a QtRpc2 service.
 public slots:
     ReturnValue addNumbers(int a, int b);
 
