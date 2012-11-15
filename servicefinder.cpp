@@ -41,7 +41,9 @@ namespace QtRpc
 ServiceFinder::ServiceFinder(QObject *parent)
 		: QObject(parent)
 {
+#ifdef Q_WS_X11
 	setenv("AVAHI_COMPAT_NOWARN","1",1); //Get rid of that annoying compat warning
+#endif
 	QXT_INIT_PRIVATE(ServiceFinder);
 	qxt_d().currentId = 0;
 	qxt_d().browser = new QxtServiceBrowser("QtRpc_" , this);
@@ -50,7 +52,9 @@ ServiceFinder::ServiceFinder(QObject *parent)
 ServiceFinder::ServiceFinder(QString service, QObject *parent)
 		: QObject(parent)
 {
+#ifdef Q_WS_X11
 	setenv("AVAHI_COMPAT_NOWARN","1",1); //Get rid of that annoying compat warning
+#endif
 	QXT_INIT_PRIVATE(ServiceFinder);
 	qxt_d().currentId = 0;
 	qxt_d().service = service;

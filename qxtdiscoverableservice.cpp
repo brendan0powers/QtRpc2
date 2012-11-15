@@ -148,7 +148,9 @@ void QxtDiscoverableServicePrivate::socketData()
 QxtDiscoverableService::QxtDiscoverableService(const QString& serviceType, QObject* parent)
 		: QObject(parent), QxtDiscoverableServiceName(QString(), serviceType, QString())
 {
+#ifdef Q_WS_X11
 	setenv("AVAHI_COMPAT_NOWARN","1",1); //Get rid of that annoying compat warning
+#endif
 	QXT_INIT_PRIVATE(QxtDiscoverableService);
 	qxt_zeroconf_parse_subtypes(&qxt_d(), serviceType.toUtf8());
 }
@@ -165,7 +167,9 @@ QxtDiscoverableService::QxtDiscoverableService(const QString& serviceType, QObje
 QxtDiscoverableService::QxtDiscoverableService(const QString& serviceType, const QString& serviceName, QObject* parent)
 		: QObject(parent), QxtDiscoverableServiceName(serviceName, serviceType, QString())
 {
+#ifdef Q_WS_X11
 	setenv("AVAHI_COMPAT_NOWARN","1",1); //Get rid of that annoying compat warning
+#endif
 	QXT_INIT_PRIVATE(QxtDiscoverableService);
 	qxt_zeroconf_parse_subtypes(&qxt_d(), serviceType.toUtf8());
 }
