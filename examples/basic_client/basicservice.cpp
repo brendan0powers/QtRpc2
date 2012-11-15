@@ -25,28 +25,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ***************************************************************************/
-#include <QApplication>
-#include <QDebug>
 #include "basicservice.h"
 
-int main(int argc, char *argv[])
+BasicService::BasicService(QObject *parent) :
+    ClientProxy(parent)
 {
-	QApplication app(argc,argv);
-
-    BasicService service;
-    ReturnValue ret = service.connect("tcp://localhost:10123/MyService");
-    if(ret.isError())
-    {
-        qCritical() << "Failed to connect:" << ret;
-        return(1);
-    }
-
-    ret = service.addNumbers(3,5);
-    if(ret.isError())
-    {
-        qCritical() << "Failed to call addNumbers():" << ret;
-        return(1);
-    }
-
-    qDebug() << "Result:" << ret.toInt();
 }

@@ -26,27 +26,25 @@
  *
  ***************************************************************************/
 #include <QApplication>
+#include <Server>
+#include <ServerProtocolListenerTcp>
 #include <QDebug>
 #include "basicservice.h"
+
+using namespace QtRpc;
 
 int main(int argc, char *argv[])
 {
 	QApplication app(argc,argv);
 
-    BasicService service;
-    ReturnValue ret = service.connect("tcp://localhost:10123/MyService");
-    if(ret.isError())
+    Server srv;
+    ServerProtocolListenerTcp tcp(&srv);
+    if(!tcp.listen(QHostAddress::Any, 10123))
     {
-        qCritical() << "Failed to connect:" << ret;
+        qCritical() << "Failed to listen on port 10123!";
         return(1);
     }
 
-    ret = service.addNumbers(3,5);
-    if(ret.isError())
-    {
-        qCritical() << "Failed to call addNumbers():" << ret;
-        return(1);
-    }
-
-    qDebug() << "Result:" << ret.toInt();
+    srv.registerService<BasicService>("MyService");
+	return app.exec();
 }

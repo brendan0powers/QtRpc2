@@ -25,28 +25,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ***************************************************************************/
-#include <QApplication>
-#include <QDebug>
-#include "basicservice.h"
+#ifndef BASICSERVICE_H
+#define BASICSERVICE_H
 
-int main(int argc, char *argv[])
+#include <ClientProxy>
+
+using namespace QtRpc;
+
+class BasicService : public ClientProxy
 {
-	QApplication app(argc,argv);
+    Q_OBJECT
+public:
+    explicit BasicService(QObject *parent = 0);
+    
+signals:
+    ReturnValue addNumbers(int a, int b);
+};
 
-    BasicService service;
-    ReturnValue ret = service.connect("tcp://localhost:10123/MyService");
-    if(ret.isError())
-    {
-        qCritical() << "Failed to connect:" << ret;
-        return(1);
-    }
-
-    ret = service.addNumbers(3,5);
-    if(ret.isError())
-    {
-        qCritical() << "Failed to call addNumbers():" << ret;
-        return(1);
-    }
-
-    qDebug() << "Result:" << ret.toInt();
-}
+#endif // BASICSERVICE_H

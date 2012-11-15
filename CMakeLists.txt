@@ -142,3 +142,4 @@ ENDIF(UNIX AND NOT APPLE)
 
 add_subdirectory("lib")
 add_subdirectory("examples/basic_client")
+add_subdirectory("examples/basic_server")
