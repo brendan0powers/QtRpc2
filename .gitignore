@@ -31,3 +31,4 @@ CMakeCache.txt
 *.orig
 build*/
 *.rej
+*.user
