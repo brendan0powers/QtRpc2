@@ -56,7 +56,9 @@ int main(int argc, char *argv[])
     }
 
     //You can use ReturnValue just like a QVariant
+    qDebug() << "Call to add() succeeded.";
     qDebug() << "Result:" << ret.toInt();
+    qDebug();
 
     //Calling this function will return an error.
     ret = service.returnError();
