@@ -32,3 +32,4 @@ CMakeCache.txt
 build*/
 *.rej
 *.user
+*.autosave
