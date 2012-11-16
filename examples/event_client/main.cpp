@@ -53,5 +53,6 @@ int main(int argc, char *argv[])
     //This will print the current time whenever the server emits the currentTIme signal.
     QObject::connect(&service, SIGNAL(currentTime(QDateTime)), &object, SLOT(currentTime(QDateTime)));
 
+    //Event and asynchronous calls need an event loop.
     return(app.exec());
 }
