@@ -51,8 +51,11 @@ signals:
     ReturnValue returnError();
 
     ReturnValue pause();
-    ReturnValue pause(QObject *object, const char *signal);
-    ReturnValue pauseAsync(QObject *obj, const char *signal);
+    //Adding a QObject *, const char * to the end of a function signals
+    //QtRpc to make an asynchronous call, and to call the provided slot when
+    //the function returns.
+    ReturnValue pause(QObject *object, const char *slot);
+    ReturnValue pauseAsync(QObject *obj, const char *slot);
 };
 
 #endif // BASICSERVICE_H
