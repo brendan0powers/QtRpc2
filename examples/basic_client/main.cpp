@@ -57,4 +57,6 @@ int main(int argc, char *argv[])
 
     //You can use ReturnValue just like a QVariant
     qDebug() << "Result:" << ret.toInt();
+
+    return(0);
 }
