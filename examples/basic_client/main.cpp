@@ -58,5 +58,16 @@ int main(int argc, char *argv[])
     //You can use ReturnValue just like a QVariant
     qDebug() << "Result:" << ret.toInt();
 
+    //Calling this function will return an error.
+    ret = service.returnError();
+    if(ret.isError())
+    {
+        //The ReturnValue class can be used to inspect the error.
+        qDebug() << "Failed to call returnError():" << ret;
+        qDebug() << "Error Number:" << ret.errNumber();
+        qDebug() << "Error String:" << ret.errString();
+        qDebug() << "This was expected";
+    }
+
     return(0);
 }

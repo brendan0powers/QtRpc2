@@ -48,6 +48,7 @@ public:
     //them to be used for a QtRpc2 service.
 public slots:
     ReturnValue addNumbers(int a, int b);
+    ReturnValue returnError();
 
 };
 

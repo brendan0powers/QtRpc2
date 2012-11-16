@@ -48,6 +48,7 @@ public:
     //from outside the class...
 signals:
     ReturnValue addNumbers(int a, int b);
+    ReturnValue returnError();
 };
 
 #endif // BASICSERVICE_H
