@@ -47,7 +47,7 @@ ReturnValue BasicService::auth(QString user, QString pass)
     if((user == "joe") && (pass == "secret"))
         return(true);
     else
-        return(ReturnValue("Incorrect username or password."));
+        return(ReturnValue(1,"Incorrect username or password."));
 }
 
 //Adds two numbers, and returns the result. This function is called by the client.
