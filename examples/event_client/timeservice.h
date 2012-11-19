@@ -38,6 +38,9 @@ using namespace QtRpc;
 class TimeService : public ClientProxy
 {
     Q_OBJECT
+    //This macro declares a couple of operators for converting
+    //ReturnValues to services.
+    QTRPC_CLIENTPROXY(TimeService)
 public:
     explicit TimeService(QObject *parent = 0);
     

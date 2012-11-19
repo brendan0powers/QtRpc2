@@ -37,6 +37,9 @@ using namespace QtRpc;
 class BasicService : public ClientProxy
 {
     Q_OBJECT
+    //This macro declares a couple of operators for converting
+    //ReturnValues to services.
+    QTRPC_CLIENTPROXY(BasicService)
 public:
     explicit BasicService(QObject *parent = 0);
     
