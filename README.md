@@ -54,5 +54,6 @@ cmake ../  -D
 make
 ```
 
-If qmake is not in your path, add  
-```-DQT_QMAKE_EXECUTABLE=C:\path\to\qmake.exe```
+If qmake is not in your path, add the qmake path to the CMake command line.
+```  -DQT_QMAKE_EXECUTABLE=C:\path\to\qmake.exe``` 
+
