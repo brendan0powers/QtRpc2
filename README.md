@@ -51,7 +51,7 @@ cd QtRpc2/
 mkdir build   
 cd build/  
 cmake ../  -D
-make
+nmake
 ```
 
 If qmake is not in your path, add the qmake path to the CMake command line.
