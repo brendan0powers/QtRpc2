@@ -90,7 +90,7 @@ public:
 	void setCertificate(const QString&);
 	QString certificate() const;
 protected:
-	virtual void incomingConnection(int);
+	virtual void incomingConnection(qintptr);
 
 
 

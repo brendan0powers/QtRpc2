@@ -34,6 +34,7 @@
 
 #include <QObject>
 #include <QxtPimpl>
+#include <QIODevice>
 
 #include <ServerProtocolInstanceBase>
 #include <Message>

@@ -30,8 +30,8 @@
 
 QxtMDNS::QxtMDNS(int id, QObject * parent)
 		: QObject(parent),
-                ref(0),
-          info(id)
+          info(id),
+          ref(0)
 {
 }
 
@@ -53,7 +53,7 @@ void QxtMDNS::doLookup(QString n, QObject * r, const char * m)
 	if (err != kDNSServiceErr_NoError)
 	{
                 qWarning() << "QxtMDNS failed to initialize the Bonjour request" << err;
-		QHostInfo info(info.lookupId());
+		QHostInfo info = QHostInfo::fromName(n);
 		info.setErrorString("Failed to initialize the Bonjour request.");
                 QMetaObject::invokeMethod(receiver, qPrintable(member), Q_ARG(QHostInfo, info));
 	}

@@ -33,6 +33,7 @@
 #define CLIENTPROTOCOLIODEVICE_P_H
 
 #include <QObject>
+#include <QDataStream>
 #include <QxtPimpl>
 #include <Message>
 #include <QMutex>

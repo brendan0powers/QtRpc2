@@ -1,6 +1,7 @@
 #include "dataservice.h"
+#include <QDataStream>
 
-    QTRPC_REGISTER_METATYPE(DataService::CustomData)
+QTRPC_REGISTER_METATYPE(DataService::CustomData)
 
 DataService::DataService(QObject *parent) :
     ClientProxy(parent)
