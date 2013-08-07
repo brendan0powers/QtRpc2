@@ -1,6 +1,7 @@
 PROJECT_BEGIN(discovery_client EXECUTABLE)
 
-USE_QT_LIB(NETWORK)
+USE_QT_LIB(Network)
+USE_QT_LIB(Core)
 
 SET(SOURCES ${SOURCES}
         main.cpp

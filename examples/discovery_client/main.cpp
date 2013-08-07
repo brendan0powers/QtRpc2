@@ -25,13 +25,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ***************************************************************************/
-#include <QApplication>
+#include <QCoreApplication>
 #include <QDebug>
 #include "testobject.h"
 
 int main(int argc, char *argv[])
 {
-	QApplication app(argc,argv);
+	QCoreApplication app(argc,argv);
 
     //Create the test object.
     TestObject object;
