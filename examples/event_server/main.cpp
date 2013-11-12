@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ***************************************************************************/
-#include <QApplication>
+#include <QCoreApplication>
 #include <Server>
 #include <ServerProtocolListenerTcp>
 #include <QDebug>
@@ -35,7 +35,7 @@ using namespace QtRpc;
 
 int main(int argc, char *argv[])
 {
-	QApplication app(argc,argv);
+	QCoreApplication app(argc,argv);
 
     //Create a server object with default threading options
     Server srv;

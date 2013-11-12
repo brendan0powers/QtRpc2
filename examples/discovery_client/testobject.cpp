@@ -2,7 +2,7 @@
 
 #include <ServiceFinder>
 #include <QDebug>
-#include <QApplication>
+#include <QCoreApplication>
 #include <QHostAddress>
 #include "basicservice.h"
 

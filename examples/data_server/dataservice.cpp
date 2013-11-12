@@ -1,5 +1,6 @@
 #include "dataservice.h"
 #include "basicservice.h"
+#include <QDataStream>
 
 //Register the custom data type, and it's QDataStream operators with Qt.
 QTRPC_REGISTER_METATYPE(DataService::CustomData)

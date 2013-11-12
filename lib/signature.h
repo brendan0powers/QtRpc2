@@ -72,6 +72,7 @@ public:
 	Signature(const Signature& other);
 	Signature(QString sig);
 	Signature(const char* sig);
+    Signature(const QByteArray& sig);
 
 	~Signature();
 	bool parse(const QString& sig);

@@ -25,14 +25,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ***************************************************************************/
-#include <QApplication>
+#include <QCoreApplication>
 #include <QDebug>
 #include "timeservice.h"
 #include "timeobject.h"
 
 int main(int argc, char *argv[])
 {
-	QApplication app(argc,argv);
+	QCoreApplication app(argc,argv);
 
     //Create an instance of the service object
     TimeService service;

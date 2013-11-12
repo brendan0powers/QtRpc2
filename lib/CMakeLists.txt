@@ -1,11 +1,14 @@
 PROJECT_BEGIN(qtrpc2 LIBRARY)
 
-SET(CMAKE_CXX_FLAGS "-D QTRPC2_BUILD_LIB")
+ADD_DEFINITIONS(-DQTRPC2_BUILD_LIB)
 
-USE_QT_LIB(NETWORK)
+USE_QT_LIB(Network)
 SET(QT_DONT_USE_QTGUI true)
 
 SET(HEADERS ${HEADERS}
+	authtoken.h
+	returnvalue.h
+	returnvalue_p.h
 	clientmessagebus.h
 	clientmessagebus_p.h
 	clientprotocolbase.h
@@ -34,6 +37,8 @@ SET(HEADERS ${HEADERS}
 	servicefinder_p.h
 	serviceproxy.h
 	servicepublisher.h
+	signature.h
+	signature_p.h
 )
 
 SET(SOURCES ${SOURCES}

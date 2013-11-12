@@ -9,7 +9,8 @@ SET(SOURCES ${SOURCES}
 	testsyncro.cpp
 )
 
-USE_QT_LIB(NETWORK)
+USE_QT_LIB(Network)
+USE_QT_LIB(Core)
 
 SET(HEADERS ${HEADERS}
 	testclient.h

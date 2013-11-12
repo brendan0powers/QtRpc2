@@ -34,6 +34,8 @@
 #include "serviceproxy_p.h"
 
 #include <QDebug>
+#include <QVariant>
+#include <QDataStream>
 #include <ServiceFinder>
 
 namespace QtRpc
@@ -237,8 +239,6 @@ DEFAULT_CONSTRUCTOR(const QRectF &)
 DEFAULT_CONSTRUCTOR(const QUrl &)
 DEFAULT_CONSTRUCTOR(const QLocale &)
 DEFAULT_CONSTRUCTOR(const QRegExp &)
-DEFAULT_CONSTRUCTOR(Qt::GlobalColor)
-
 }
 
 QDebug operator<<(QDebug dbg, const ReturnValue& ret)
@@ -255,7 +255,7 @@ QDebug operator<<(QDebug dbg, const ReturnValue& ret)
 		case QtRpc::ReturnValueData::Variant:
 		default:
 			dbg << ret.typeName() << ", ";
-			ReturnValue::handler->debugStream(dbg, ret);
+            //TODO Qt5: ReturnValue::Handler->debugStream(dbg, ret);
 			break;
 	}
 	dbg << ')';

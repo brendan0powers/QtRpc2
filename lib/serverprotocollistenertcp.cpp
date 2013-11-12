@@ -72,7 +72,7 @@ ServerProtocolListenerTcp::~ServerProtocolListenerTcp()
  * This function is used internally for incoming connections. This function should never be called directly.
  * @param desc Socket Descriptor of the incoming connection.
  */
-void ServerProtocolListenerTcp::incomingConnection(int desc)
+void ServerProtocolListenerTcp::incomingConnection(qintptr desc)
 {
 	QReadLocker locker(&qxt_d().modemutex);
 	QReadLocker locker2(&qxt_d().certmutex);

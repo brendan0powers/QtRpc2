@@ -46,8 +46,8 @@ public:
     QxtServiceBrowserPrivate()
         : QObject(),
         service(0),
-        notifier(0),
-        iface(0)
+        iface(0),
+        notifier(0)
     {
     }
 

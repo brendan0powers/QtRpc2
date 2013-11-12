@@ -32,6 +32,7 @@
 #include "message.h"
 #include "message_p.h"
 #include <QDebug>
+#include <QDataStream>
 
 using namespace QtRpc;
 

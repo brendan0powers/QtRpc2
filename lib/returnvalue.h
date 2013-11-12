@@ -132,7 +132,7 @@ public:
 	ReturnValue(const QUrl & val);
 	ReturnValue(const QLocale & val);
 	ReturnValue(const QRegExp & val);
-	ReturnValue(Qt::GlobalColor val);
+
 	/**
 	 * Creates a ReturnValue with an error
 	 * @param num The number of the error, The value of the number doesn't matter.

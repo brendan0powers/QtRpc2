@@ -13,7 +13,8 @@ SET(HEADERS ${HEADERS}
 	testsyncroserver.h
 )
 
-USE_QT_LIB(NETWORK)
+USE_QT_LIB(Network)
+USE_QT_LIB(Core)
 
 SET(INCLUDES ${INCLUDES}
 	../

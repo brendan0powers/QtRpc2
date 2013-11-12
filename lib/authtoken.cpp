@@ -32,6 +32,7 @@
 #include "authtoken.h"
 #include "authtoken_p.h"
 #include <QDebug>
+#include <QDataStream>
 #include <ReturnValue>
 
 using namespace QtRpc;
