@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 2.8.8 )
+cmake_minimum_required( VERSION 2.8.9 )
 
 Project(QtRPC2)
 
@@ -12,10 +12,9 @@ IF(NOT ${QT_ROOT} STREQUAL "")
 	SET(CMAKE_PREFIX_PATH ${QT_ROOT}/lib/cmake)
 ENDIF()
 
-find_package ( Qt5 COMPONENTS Core Gui Widgets)
+find_package (Qt5Core)
 
-IF(${Qt5_DIR} STREQUAL "Qt5_DIR-NOTFOUND")
-	SET(QT_ROOT "" CACHE PATH QT_ROOT)
+if(NOT Qt5Core_FOUND)
 	MESSAGE(FATAL_ERROR "Qt5 not found - Please specify -DQT_ROOT=path/to/qt_root")
 ENDIF()
 
@@ -31,8 +30,6 @@ ENDIF(UNIX)
 #############################################
 
 MACRO(USE_QT_LIB lib)
-	find_package ( Qt5 COMPONENTS ${lib})
-	ADD_DEFINITIONS (${Qt5${lib}_DEFINITIONS})
 	LIST(APPEND QT_LIBRARIES ${lib})
 ENDMACRO(USE_QT_LIB)
 
@@ -57,8 +54,6 @@ MACRO(PROJECT_END)
 	IF(NOT ${QT_USE_FILE} STREQUAL "")
 		include ( ${QT_USE_FILE} )
 	ENDIF()
-
-	QT5_WRAP_UI(FORMS_UI ${FORMS})
 
 	QT5_ADD_RESOURCES(RESOURCES_SRCS ${RESOURCES})
 
