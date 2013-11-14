@@ -40,6 +40,10 @@
 
 using namespace QtRpc;
 
+ClientProxy::ExceptionThrower *ClientProxy::_exceptionHandler = new ClientProxy::ExceptionThrowerTemplated<ReturnValueException>();
+bool ClientProxy::_exceptionsEnabled = false;
+bool ClientProxy::_asyncExceptionsEnabled = false;
+
 ServiceData::ServiceData(quint32 _id, QSharedPointer<ConnectionData> _connection)
 		: id(_id),
 		mutex(QMutex::Recursive),
@@ -774,12 +778,23 @@ ReturnValue ClientProxy::deselectService()
 ReturnValue ClientProxy::functionCalled(const Signature& sig, const Arguments& args, const QString&)
 {
 	if (qxt_d().connection->bus.isNull())
+	{
+		throwException(ReturnValue(1, "Not Connected"));
 		return(ReturnValue(1, "Not Connected"));
+	}
 
 	if (qxt_d().service.isNull())
+	{
+		throwException(ReturnValue(1, "No service selected"));
 		return(ReturnValue(1, "No service selected"));
+	}
 	//make the call and return the result
-	return qxt_d().parseReturn(qxt_d().service->callFunction(sig, args));
+	ReturnValue ret = qxt_d().parseReturn(qxt_d().service->callFunction(sig, args));
+
+	if(ret.isError())
+		throwException(ret);
+
+	return ret;
 }
 
 /**
@@ -788,7 +803,10 @@ ReturnValue ClientProxy::functionCalled(const Signature& sig, const Arguments& a
 ReturnValue QtRpc::ClientProxy::functionCalled(QObject *obj, const char *slot, const Signature& sig, const Arguments& args, const QString&)
 {
 	if (qxt_d().connection->bus.isNull())
+	{
+		throwException(ReturnValue(1, "Not Connected"));
 		return(ReturnValue(1, "Not Connected"));
+	}
 
 
 	//strip the argument list from the slot
@@ -804,13 +822,20 @@ ReturnValue QtRpc::ClientProxy::functionCalled(QObject *obj, const char *slot, c
 
 	ReturnValue ret;
 	if (qxt_d().service.isNull())
+	{
+		throwException(ReturnValue(1, "No service selected"));
 		return(ReturnValue(1, "No service selected"));
+	}
 	//make the call and return the result
 	ret = qxt_d().service->callFunction(&qxt_d(), Signature("functionCompleted(uint, ReturnValue)"), sig, args);
 	if (!ret.isError())
 	{
 		ClientProxyPrivate::ObjectSlot objectslot = {slot, obj};
 		qxt_d().functionObjects[ret.toUInt()] = objectslot;
+	}
+	else
+	{
+		throwException(ret);
 	}
 
 	return(ret);
@@ -822,6 +847,8 @@ void QtRpc::ClientProxyPrivate::functionCompleted(uint id, ReturnValue ret)
 	ret = parseReturn(ret);
 	ObjectSlot obj = functionObjects.take(id);
 	obj.id = id;
+	if(ret.isError())
+		qxt_p().throwExceptionAsync(ret);
 	sendReturnValue(obj, ret);
 }
 
@@ -1022,4 +1049,24 @@ AuthToken &ClientProxy::authToken()
 	return qxt_d().connection->token;
 }
 
+void ClientProxy::throwException(const ReturnValue &ret)
+{
+	if(_exceptionsEnabled && _exceptionHandler)
+		_exceptionHandler->throwException(ret);
+}
 
+void ClientProxy::throwExceptionAsync(const ReturnValue &ret)
+{
+	if(_asyncExceptionsEnabled && _exceptionHandler)
+		_exceptionHandler->throwException(ret);
+}
+
+void ClientProxy::setExceptionsEnabled(bool enabled)
+{
+	_exceptionsEnabled = true;
+}
+
+void ClientProxy::setAsyncExceptionsEnabled(bool enabled)
+{
+	_asyncExceptionsEnabled = true;
+}

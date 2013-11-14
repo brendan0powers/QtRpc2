@@ -256,9 +256,16 @@ ReturnValue QtRpc::ServiceProxy::callFunction(const Signature& sig, const Argume
 			return ret;
 		return ReturnValue::asyncronous();
 	}
-	return callCallback(sig, args);
-}
 
+	//catch Exceptions
+	try {
+		return callCallback(sig, args);
+	}
+	catch(std::exception &e)
+	{
+		qDebug() << "Trowing Exception!" << e.what();
+		return ReturnValue(1, QString(e.what()));
+	}
 }
 
 void QtRpc::ServiceProxy::disconnected(const QString& reason)
@@ -306,5 +313,5 @@ QWeakPointer<QtRpc::ServiceProxy>& QtRpc::ServiceProxy::weakPointer()
 }
 
 
-
+}
 

@@ -167,6 +167,39 @@ class QTRPC2_EXPORT ClientProxy : public ProxyBase
 	Q_OBJECT;
 	friend class ServiceData;
 public:
+	class ReturnValueException : std::exception
+	{
+	public:
+		ReturnValueException(const ReturnValue &ret)
+		{
+			_ret = ret;
+		}
+
+		virtual const char* what() const throw()
+		{
+			return _exceptionText.constData();
+		}
+
+	private:
+		ReturnValue _ret;
+		QByteArray _exceptionText;
+	};
+
+	template <class T>
+	class ExceptionThrowerTemplated : public ExceptionThrower
+	{
+		void throwException(const ReturnValue &ret)
+		{
+			throw T(ret);
+		}
+	};
+
+	class ExceptionThrower
+	{
+	public:
+		virtual void throwException(const ReturnValue &ret) = 0;
+	};
+
 	enum State
 	{
 		Disconnected,
@@ -207,9 +240,29 @@ public:
 	ClientProxy& operator=(const ReturnValue &service);
 	ClientProxy& operator=(const ClientProxy &service);
 
+	static void setExceptionsEnabled(bool enabled);
+	static void setAsyncExceptionsEnabled(bool enabled);
+
+	template <class T>
+	static void setExceptionHandler()
+	{
+		if(_exceptionHandler)
+			delete _exceptionHandler;
+
+		_exceptionHandler = new ExceptionThrowerTemplated<T>();
+	}
+
 protected:
 	virtual ReturnValue functionCalled(const Signature& sig, const Arguments& args, const QString& type);
 	virtual ReturnValue functionCalled(QObject *obj, const char *slot, const Signature& sig, const Arguments& args, const QString& type);
+	
+	//Custom exception handling. Implement this function to throw an exception instead of returning a ReturnValue when a function fails
+	virtual void throwException(const ReturnValue &ret);
+	virtual void throwExceptionAsync(const ReturnValue &ret);
+
+	static ExceptionThrower *_exceptionHandler;
+	static bool _exceptionsEnabled;
+	static bool _asyncExceptionsEnabled;
 
 signals:
 	/**
