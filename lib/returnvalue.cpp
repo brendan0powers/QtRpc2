@@ -36,7 +36,9 @@
 #include <QDebug>
 #include <QVariant>
 #include <QDataStream>
-#include <ServiceFinder>
+#ifdef BONJOUR_FOUND
+	#include <ServiceFinder>
+#endif
 
 namespace QtRpc
 {
@@ -76,7 +78,9 @@ void registerMetaTypes()
 		qRegisterMetaType<QtRpc::ServiceProxy*>("QtRpc::ServiceProxy*");
 		qRegisterMetaType<ServiceProxy*>("ServiceProxy*");
 
-		qRegisterMetaType<ServiceFinder::Service>("ServiceFinder::Service");
+		#ifdef BONJOUR_FOUND
+			qRegisterMetaType<ServiceFinder::Service>("ServiceFinder::Service");
+		#endif
 		qtrpc_metatypes_registered = true;
 	}
 }

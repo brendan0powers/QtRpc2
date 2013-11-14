@@ -1,5 +1,9 @@
 cmake_minimum_required( VERSION 2.8.9 )
 
+IF(WIN32)
+	cmake_policy(SET CMP0020 OLD)
+ENDIF()
+
 Project(QtRPC2)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -97,10 +101,11 @@ MACRO(PROJECT_END)
 		ELSE("${PROJECT_APP_TYPE}" MATCHES "EXECUTABLE")
 			MESSAGE(FATAL_ERROR "Project type must be either LIBRARY or EXECUTABLE, found ${PROJECT_APP_TYPE}. Please fix the PROJECT_BEGIN macro in CMakeLists.txt")
 		ENDIF("${PROJECT_APP_TYPE}" MATCHES "EXECUTABLE")
-		IF(WIN32)
-			USE_QT_LIB(MAIN)
-		ENDIF(WIN32)
 		ADD_EXECUTABLE(${PROJECT_NAME} WIN32 MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${MOC_SOURCES} ${FORMS_UI})
+		IF(WIN32)
+			cmake_policy(SET CMP0020 OLD)
+			target_link_libraries(${PROJECT_NAME} Qt5::WinMain)
+		ENDIF(WIN32)
 	ENDIF("${PROJECT_APP_TYPE}" MATCHES "LIBRARY")
 
 	TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${LIBRARIES})
@@ -144,6 +149,26 @@ ENDFOREACH()
 ENDIF(UNIX AND NOT APPLE)
 
 
+IF(WIN32)
+	cmake_policy(SET CMP0020 OLD)
+	
+	FIND_LIBRARY(BONJOUR_LIBRARY NAMES dnssd.lib PATHS
+		"C:/Program Files/Bonjour SDK/Lib/Win32/"
+		"C:/Bonjour SDK/Lib/Win32/"
+	)
+
+	FIND_PATH(BONJOUR_INCLUDE_DIR dns_sd.h
+		"C:/Program Files/Bonjour SDK/Include/"
+		"C:/Bonjour SDK/Include/"
+	)
+
+	IF (BONJOUR_INCLUDE_DIR AND BONJOUR_LIBRARY)
+	   SET(BONJOUR_FOUND TRUE)
+	ENDIF (BONJOUR_INCLUDE_DIR AND BONJOUR_LIBRARY)
+ELSE()
+	SET(BONJOUR_FOUND TRUE) #For other platforms, we currently assume bonjour is found
+ENDIF(WIN32)
+
 #############################################
 ################### PROJECT##################
 #############################################
@@ -166,5 +191,8 @@ add_subdirectory("examples/thread_client")
 add_subdirectory("examples/thread_server")
 add_subdirectory("examples/data_client")
 add_subdirectory("examples/data_server")
-add_subdirectory("examples/discovery_client")
-add_subdirectory("examples/discovery_server")
+
+IF(BONJOUR_FOUND)
+	add_subdirectory("examples/discovery_client")
+	add_subdirectory("examples/discovery_server")
+ENDIF()

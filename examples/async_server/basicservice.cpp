@@ -28,7 +28,7 @@
 #include "basicservice.h"
 #include <QDebug>
 #include <QTimer>
-#ifdef Q_WS_WIN32
+#ifdef Q_OS_WIN
 #include <Windows.h>
 #define sleep(x) Sleep(x * 1000);
 #endif
@@ -69,7 +69,7 @@ ReturnValue BasicService::returnError()
 //Block for one seccond and then return
 ReturnValue BasicService::pause()
 {
-    sleep(1);
+	sleep(1);
     return(true);
 }
 
