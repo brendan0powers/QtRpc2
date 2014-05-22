@@ -167,9 +167,10 @@ class QTRPC2_EXPORT ClientProxy : public ProxyBase
 	Q_OBJECT;
 	friend class ServiceData;
 public:
-	class ReturnValueException : std::exception
+    class ReturnValueException : std::exception
 	{
 	public:
+        virtual ~ReturnValueException() throw(){}
 		ReturnValueException(const ReturnValue &ret)
 		{
 			_ret = ret;
@@ -185,6 +186,12 @@ public:
 		QByteArray _exceptionText;
 	};
 
+    class ExceptionThrower
+    {
+    public:
+        virtual void throwException(const ReturnValue &ret) = 0;
+    };
+
 	template <class T>
 	class ExceptionThrowerTemplated : public ExceptionThrower
 	{
@@ -192,12 +199,6 @@ public:
 		{
 			throw T(ret);
 		}
-	};
-
-	class ExceptionThrower
-	{
-	public:
-		virtual void throwException(const ReturnValue &ret) = 0;
 	};
 
 	enum State
